@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boyles Law Calculator</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    margin: 0;
+    padding: 20px;
+}
+.calculator {
+    background: white;
+    max-width: 400px;
+    margin: auto;
+    padding: 20px;
+    border-radius: 10px;
+}
+input, button {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    font-size: 18px;
+}
+button {
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+}
+.result {
+    text-align: center;
+    font-weight: bold;
+    font-size: 18px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="calculator">
+<h2 style="text-align:center;">Boyles Law Calculator</h2>
+<p style="text-align:center;">Leave ONE field empty</p>
+
+<input id="P1" placeholder="Initial Pressure (P1)">
+<input id="V1" placeholder="Initial Volume (V1)">
+<input id="P2" placeholder="Final Pressure (P2)">
+<input id="V2" placeholder="Final Volume (V2)">
+
+<button onclick="calculate()">Calculate</button>
+
+<div id="result" class="result"></div>
+</div>
+
+<script>
+function calculate() {
+    var P1 = parseFloat(document.getElementById("P1").value);
+    var V1 = parseFloat(document.getElementById("V1").value);
+    var P2 = parseFloat(document.getElementById("P2").value);
+    var V2 = parseFloat(document.getElementById("V2").value);
+
+    var empty = [P1, V1, P2, V2].filter(function(v){ return isNaN(v); }).length;
+
+    if (empty !== 1) {
+        document.getElementById("result").innerHTML =
+            "Leave exactly ONE field empty.";
+        return;
+    }
+
+    if (isNaN(P1)) {
+        document.getElementById("result").innerHTML =
+            "P1 = " + ((P2 * V2) / V1).toFixed(2);
+    } else if (isNaN(V1)) {
+        document.getElementById("result").innerHTML =
+            "V1 = " + ((P2 * V2) / P1).toFixed(2);
+    } else if (isNaN(P2)) {
+        document.getElementById("result").innerHTML =
+            "P2 = " + ((P1 * V1) / V2).toFixed(2);
+    } else {
+        document.getElementById("result").innerHTML =
+            "V2 = " + ((P1 * V1) / P2).toFixed(2);
+    }
+}
+</script>
+
+</body>
+</html>
