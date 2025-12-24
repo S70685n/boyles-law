@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gas & Cylinder & Rod Calculator</title>
 <style>
-/* --- Colors & Fonts --- */
 body {
     font-family: Arial, sans-serif;
     background: #f0f0f0; /* light grey background */
@@ -84,7 +83,7 @@ button.reset {
 
 <!-- Logo -->
 <div class="logo-container">
-    <img src="https://eibach-chevron.png" alt="Logo">
+    <img src="https://your-image-url.com/logo.png" alt="Logo">
 </div>
 
 <!-- Tabs -->
@@ -145,13 +144,21 @@ button.reset {
 <!-- Rod Force Tab -->
 <div id="rod" class="tab-content">
 <h2 style="text-align:center;">Rod Force Calculator</h2>
-<p style="text-align:center;">Enter force and select unit & shaft size</p>
+<p style="text-align:center;">Choose input type and shaft size</p>
 
-<input id="force" placeholder="Force value">
-<label>Force Unit:</label>
+<label>Input Type:</label>
+<select id="inputType">
+    <option value="force">Force (lbs/N → psi)</option>
+    <option value="pressure">Pressure (psi → lbs/N)</option>
+</select>
+
+<input id="force" placeholder="Enter force or pressure value">
+
+<label>Unit:</label>
 <select id="forceUnit">
     <option value="lbs">lbs</option>
     <option value="N">Newtons (N)</option>
+    <option value="psi">psi</option>
 </select>
 
 <label>Shaft Size:</label>
@@ -247,19 +254,34 @@ function resetCylinder() {
 
 // Rod Force
 function calculateRodForce() {
-    let force = parseFloat(document.getElementById("force").value);
+    let inputValue = parseFloat(document.getElementById("force").value);
     let unit = document.getElementById("forceUnit").value;
-    let factor = parseFloat(document.getElementById("shaftSize").value);
+    let shaftFactor = parseFloat(document.getElementById("shaftSize").value);
+    let inputType = document.getElementById("inputType").value;
 
-    if (isNaN(force)) {
-        document.getElementById("rodResult").innerText = "Enter a valid force!";
+    if(isNaN(inputValue)){
+        document.getElementById("rodResult").innerText = "Enter a valid value!";
         return;
     }
 
-    if (unit === "N") force = force * 0.224809;
+    let resultText = "";
 
-    let psi = force / factor;
-    document.getElementById("rodResult").innerText = `Pressure = ${psi.toFixed(2)} psi`;
+    if(inputType === "force"){
+        // Force → psi
+        if(unit === "N") inputValue *= 0.224809; // convert to lbs
+        let psi = inputValue / shaftFactor;
+        resultText = `Pressure = ${psi.toFixed(2)} psi`;
+    } else if(inputType === "pressure"){
+        // psi → Force
+        let lbsForce = inputValue * shaftFactor;
+        let newtonsForce = lbsForce / 0.224809;
+
+        if(unit === "lbs") resultText = `Force = ${lbsForce.toFixed(2)} lbs`;
+        else if(unit === "N") resultText = `Force = ${newtonsForce.toFixed(2)} N`;
+        else resultText = `Force = ${lbsForce.toFixed(2)} lbs (psi input)`;
+    }
+
+    document.getElementById("rodResult").innerText = resultText;
 }
 
 function resetRodForce() {
@@ -267,6 +289,7 @@ function resetRodForce() {
     document.getElementById("rodResult").innerText = "";
     document.getElementById("forceUnit").value = "lbs";
     document.getElementById("shaftSize").value = "0.196";
+    document.getElementById("inputType").value = "force";
 }
 </script>
 
