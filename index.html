@@ -79,8 +79,7 @@ button.reset {
 <label>Pressure Unit:</label>
 <select id="pressureUnit">
     <option value="psi">psi</option>
-    <option value="atm">atm</option>
-    <option value="kPa">kPa</option>
+    <option value="bar">bar</option>
 </select>
 
 <input id="P1" placeholder="Initial Pressure">
@@ -176,7 +175,6 @@ function calculateCylinder() {
         return;
     }
 
-    // Convert input to meters for internal calculation
     let factor = 1;
     if(inputUnit === "mm") factor = 0.001;
     else if(inputUnit === "cm") factor = 0.01;
