@@ -118,11 +118,14 @@ button.reset {
     <option value="bar">bar</option>
 </select>
 
-<label>Cylinder Radius</label>
-<select id="R">
+<label>Cylinder Circumference</label>
+<select id="C">
     <option value="2">2 inches</option>
     <option value="2.5">2.5 inches</option>
 </select>
+
+<label>Derived Radius</label>
+<div id="radiusDisplay" style="margin-bottom:14px;font-weight:bold;"></div>
 
 <label>Initial Pressure (P1)</label>
 <input id="P1">
@@ -209,7 +212,7 @@ button.reset {
 </div>
 
 <script>
-// ---------------- Tabs ----------------
+// ---------- Tabs ----------
 function openTab(id) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
@@ -217,51 +220,59 @@ function openTab(id) {
     event.currentTarget.classList.add('active');
 }
 
-// ---------------- Boyle's Law ----------------
-function hToMeters(v,u){ return u==="in" ? v*0.0254 : v/1000; }
+// ---------- Boyle’s Law ----------
+function heightToMeters(v,u){ return u==="in" ? v*0.0254 : v/1000; }
 
-function calculateBoyle() {
-    let P1 = parseFloat(P1El.value);
-    let P2 = parseFloat(P2El.value);
-    let H1 = parseFloat(H1El.value);
-    let H2 = parseFloat(H2El.value);
+function calculateBoyle(){
+    let P1v = parseFloat(P1.value);
+    let P2v = parseFloat(P2.value);
+    let H1v = parseFloat(H1.value);
+    let H2v = parseFloat(H2.value);
 
-    let r = parseFloat(REl.value) * 0.0254;
-    let h1m = hToMeters(H1, H1Unit.value);
-    let h2m = hToMeters(H2, H2Unit.value);
+    let C_in = parseFloat(C.value);
+    let r_m = (C_in / (2*Math.PI)) * 0.0254;
+    radiusDisplay.innerText = `Radius = ${(r_m/0.0254).toFixed(3)} inches`;
 
-    let V1 = Math.PI * r*r * h1m;
-    let V2 = Math.PI * r*r * h2m;
+    let h1m = heightToMeters(H1v, H1Unit.value);
+    let h2m = heightToMeters(H2v, H2Unit.value);
 
-    let empty = [P1,P2,H1,H2].filter(v=>isNaN(v)).length;
-    if(empty !== 1){
+    let V1 = Math.PI * r_m * r_m * h1m;
+    let V2 = Math.PI * r_m * r_m * h2m;
+
+    let blanks = [P1v,P2v,H1v,H2v].filter(v=>isNaN(v)).length;
+    if(blanks !== 1){
         boyleResult.innerText = "Leave exactly ONE field blank";
         return;
     }
 
-    if(isNaN(P1)) boyleResult.innerText = `P1 = ${(P2*V2/V1).toFixed(2)} ${pressureUnit.value}`;
-    else if(isNaN(P2)) boyleResult.innerText = `P2 = ${(P1*V1/V2).toFixed(2)} ${pressureUnit.value}`;
-    else if(isNaN(H1)) boyleResult.innerText = `H1 = ${((V2*P2)/(Math.PI*r*r*P1)/(H1Unit.value==="in"?0.0254:0.001)).toFixed(2)} ${H1Unit.value}`;
-    else boyleResult.innerText = `H2 = ${((V1*P1)/(Math.PI*r*r*P2)/(H2Unit.value==="in"?0.0254:0.001)).toFixed(2)} ${H2Unit.value}`;
+    if(isNaN(P1v))
+        boyleResult.innerText = `P1 = ${(P2v*V2/V1).toFixed(2)} ${pressureUnit.value}`;
+    else if(isNaN(P2v))
+        boyleResult.innerText = `P2 = ${(P1v*V1/V2).toFixed(2)} ${pressureUnit.value}`;
+    else if(isNaN(H1v))
+        boyleResult.innerText = `H1 = ${((V2*P2v)/(Math.PI*r_m*r_m*P1v)/(H1Unit.value==="in"?0.0254:0.001)).toFixed(2)} ${H1Unit.value}`;
+    else
+        boyleResult.innerText = `H2 = ${((V1*P1v)/(Math.PI*r_m*r_m*P2v)/(H2Unit.value==="in"?0.0254:0.001)).toFixed(2)} ${H2Unit.value}`;
 }
 
 function resetBoyle(){
     ["P1","P2","H1","H2"].forEach(id=>document.getElementById(id).value="");
     boyleResult.innerText="";
+    radiusDisplay.innerText="";
 }
 
-// ---------------- Volume ----------------
+// ---------- Volume ----------
 function calculateVolume(){
-    let r = parseFloat(volRadius.value);
-    let h = parseFloat(volHeight.value);
-    let f = volInputUnit.value==="mm"?0.001:volInputUnit.value==="cm"?0.01:1;
-    let V = Math.PI*(r*f)**2*(h*f);
-    let out = volOutputUnit.value==="mm3"?V*1e9:volOutputUnit.value==="cm3"?V*1e6:V*1000;
-    volumeResult.innerText = `Volume = ${out.toFixed(3)} ${volOutputUnit.value}`;
+    let r=parseFloat(volRadius.value);
+    let h=parseFloat(volHeight.value);
+    let f=volInputUnit.value==="mm"?0.001:volInputUnit.value==="cm"?0.01:1;
+    let V=Math.PI*(r*f)**2*(h*f);
+    let out=volOutputUnit.value==="mm3"?V*1e9:volOutputUnit.value==="cm3"?V*1e6:V*1000;
+    volumeResult.innerText=`Volume = ${out.toFixed(3)} ${volOutputUnit.value}`;
 }
 function resetVolume(){ volRadius.value=""; volHeight.value=""; volumeResult.innerText=""; }
 
-// ---------------- Rod Force ----------------
+// ---------- Rod Force ----------
 function updateRodUnits(){
     rodUnit.innerHTML="";
     if(rodType.value==="force"){
@@ -271,19 +282,18 @@ function updateRodUnits(){
     }
 }
 function calculateRod(){
-    let v = parseFloat(rodValue.value);
-    let f = parseFloat(shaft.value);
+    let v=parseFloat(rodValue.value);
+    let f=parseFloat(shaft.value);
     if(rodType.value==="force"){
         if(rodUnit.value==="N") v*=0.224809;
-        rodResult.innerText = `Pressure = ${(v/f).toFixed(2)} psi`;
+        rodResult.innerText=`Pressure = ${(v/f).toFixed(2)} psi`;
     } else {
         let lbs=v*f;
-        rodResult.innerText = `Force = ${lbs.toFixed(2)} lbs (${(lbs/0.224809).toFixed(2)} N)`;
+        rodResult.innerText=`Force = ${lbs.toFixed(2)} lbs (${(lbs/0.224809).toFixed(2)} N)`;
     }
 }
 function resetRod(){ rodValue.value=""; rodResult.innerText=""; }
 
-const P1El=P1, P2El=P2, H1El=H1, H2El=H2, REl=R;
 updateRodUnits();
 </script>
 
