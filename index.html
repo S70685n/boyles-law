@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gas & Cylinder Volume Calculator</title>
+<title>Gas & Cylinder & Rod Calculator</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -69,6 +69,7 @@ button.reset {
 <div class="tabs">
     <button class="tab-button active" onclick="openTab('boyle')">Boyle’s Law</button>
     <button class="tab-button" onclick="openTab('cylinder')">Cylinder Volume</button>
+    <button class="tab-button" onclick="openTab('rod')">Rod Force</button>
 </div>
 
 <!-- Boyle's Law Tab -->
@@ -119,6 +120,29 @@ button.reset {
 <div id="cylinderResult" class="result"></div>
 </div>
 
+<!-- Rod Force Tab -->
+<div id="rod" class="tab-content">
+<h2 style="text-align:center;">Rod Force Calculator</h2>
+<p style="text-align:center;">Enter force and select unit & shaft size</p>
+
+<input id="force" placeholder="Force value">
+<label>Force Unit:</label>
+<select id="forceUnit">
+    <option value="lbs">lbs</option>
+    <option value="N">Newtons (N)</option>
+</select>
+
+<label>Shaft Size:</label>
+<select id="shaftSize">
+    <option value="0.196">1/2 inch</option>
+    <option value="0.307">5/8 inch</option>
+</select>
+
+<button class="calc" onclick="calculateRodForce()">Calculate</button>
+<button class="reset" onclick="resetRodForce()">Reset</button>
+<div id="rodResult" class="result"></div>
+</div>
+
 <script>
 function openTab(tabName) {
     var i, tabcontent, tabbuttons;
@@ -132,7 +156,7 @@ function openTab(tabName) {
     event.currentTarget.classList.add("active");
 }
 
-// Boyle's Law Functions
+// Boyle's Law
 function calculateBoyle() {
     var P1 = parseFloat(document.getElementById("P1").value);
     var V1 = parseFloat(document.getElementById("V1").value);
@@ -163,7 +187,7 @@ function resetBoyle() {
     document.getElementById("boyleResult").innerText = "";
 }
 
-// Cylinder Functions
+// Cylinder Volume
 function calculateCylinder() {
     let r = parseFloat(document.getElementById("radius").value);
     let h = parseFloat(document.getElementById("height").value);
@@ -197,6 +221,31 @@ function resetCylinder() {
     document.getElementById("radius").value = "";
     document.getElementById("height").value = "";
     document.getElementById("cylinderResult").innerText = "";
+}
+
+// Rod Force
+function calculateRodForce() {
+    let force = parseFloat(document.getElementById("force").value);
+    let unit = document.getElementById("forceUnit").value;
+    let factor = parseFloat(document.getElementById("shaftSize").value);
+
+    if (isNaN(force)) {
+        document.getElementById("rodResult").innerText = "Enter a valid force!";
+        return;
+    }
+
+    // Convert Newtons to lbs
+    if (unit === "N") force = force * 0.224809;
+
+    let psi = force / factor;
+    document.getElementById("rodResult").innerText = `Pressure = ${psi.toFixed(2)} psi`;
+}
+
+function resetRodForce() {
+    document.getElementById("force").value = "";
+    document.getElementById("rodResult").innerText = "";
+    document.getElementById("forceUnit").value = "lbs";
+    document.getElementById("shaftSize").value = "0.196";
 }
 </script>
 
