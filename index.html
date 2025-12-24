@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boyles Law Calculator</title>
-
+<title>Gas & Cylinder Volume Calculator</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -12,21 +11,48 @@ body {
     margin: 0;
     padding: 20px;
 }
-.calculator {
-    background: white;
-    max-width: 400px;
-    margin: auto;
-    padding: 20px;
-    border-radius: 10px;
+.tabs {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
 }
-input, button {
+.tab-button {
+    flex: 1;
+    padding: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    background: #ddd;
+    border: none;
+    border-radius: 6px 6px 0 0;
+    margin-right: 2px;
+}
+.tab-button.active {
+    background: #007bff;
+    color: white;
+}
+.tab-content {
+    background: white;
+    border-radius: 0 6px 6px 6px;
+    padding: 20px;
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
+input, button, select {
     width: 100%;
-    padding: 15px;
+    padding: 14px;
     margin: 10px 0;
     font-size: 18px;
 }
-button {
+button.calc {
     background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+}
+button.reset {
+    background: #6c757d;
     color: white;
     border: none;
     border-radius: 6px;
@@ -38,51 +64,141 @@ button {
 }
 </style>
 </head>
-
 <body>
 
-<div class="calculator">
-<h2 style="text-align:center;">Boyles Law Calculator</h2>
+<div class="tabs">
+    <button class="tab-button active" onclick="openTab('boyle')">Boyle’s Law</button>
+    <button class="tab-button" onclick="openTab('cylinder')">Cylinder Volume</button>
+</div>
+
+<!-- Boyle's Law Tab -->
+<div id="boyle" class="tab-content active">
+<h2 style="text-align:center;">Boyle’s Law Calculator</h2>
 <p style="text-align:center;">Leave ONE field empty</p>
 
-<input id="P1" placeholder="Initial Pressure (P1)">
-<input id="V1" placeholder="Initial Volume (V1)">
-<input id="P2" placeholder="Final Pressure (P2)">
-<input id="V2" placeholder="Final Volume (V2)">
+<label>Pressure Unit:</label>
+<select id="pressureUnit">
+    <option value="psi">psi</option>
+    <option value="atm">atm</option>
+    <option value="kPa">kPa</option>
+</select>
 
-<button onclick="calculate()">Calculate</button>
+<input id="P1" placeholder="Initial Pressure">
+<input id="V1" placeholder="Initial Volume">
+<input id="P2" placeholder="Final Pressure">
+<input id="V2" placeholder="Final Volume">
 
-<div id="result" class="result"></div>
+<button class="calc" onclick="calculateBoyle()">Calculate</button>
+<button class="reset" onclick="resetBoyle()">Reset</button>
+<div id="boyleResult" class="result"></div>
+</div>
+
+<!-- Cylinder Volume Tab -->
+<div id="cylinder" class="tab-content">
+<h2 style="text-align:center;">Cylinder Volume Calculator</h2>
+<p style="text-align:center;">Input units and desired output</p>
+
+<label>Input Unit:</label>
+<select id="inputUnit">
+    <option value="mm">mm</option>
+    <option value="cm">cm</option>
+    <option value="m">m</option>
+</select>
+
+<label>Output Unit:</label>
+<select id="outputUnit">
+    <option value="mm3">mm³</option>
+    <option value="cm3">cm³</option>
+    <option value="L">L</option>
+</select>
+
+<input id="radius" placeholder="Radius">
+<input id="height" placeholder="Height">
+
+<button class="calc" onclick="calculateCylinder()">Calculate Volume</button>
+<button class="reset" onclick="resetCylinder()">Reset</button>
+<div id="cylinderResult" class="result"></div>
 </div>
 
 <script>
-function calculate() {
+function openTab(tabName) {
+    var i, tabcontent, tabbuttons;
+    tabcontent = document.getElementsByClassName("tab-content");
+    tabbuttons = document.getElementsByClassName("tab-button");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].classList.remove("active");
+        tabbuttons[i].classList.remove("active");
+    }
+    document.getElementById(tabName).classList.add("active");
+    event.currentTarget.classList.add("active");
+}
+
+// Boyle's Law Functions
+function calculateBoyle() {
     var P1 = parseFloat(document.getElementById("P1").value);
     var V1 = parseFloat(document.getElementById("V1").value);
     var P2 = parseFloat(document.getElementById("P2").value);
     var V2 = parseFloat(document.getElementById("V2").value);
-
+    var unit = document.getElementById("pressureUnit").value;
     var empty = [P1, V1, P2, V2].filter(function(v){ return isNaN(v); }).length;
 
     if (empty !== 1) {
-        document.getElementById("result").innerHTML =
-            "Leave exactly ONE field empty.";
+        document.getElementById("boyleResult").innerText = "Leave exactly ONE field blank.";
         return;
     }
 
-    if (isNaN(P1)) {
-        document.getElementById("result").innerHTML =
-            "P1 = " + ((P2 * V2) / V1).toFixed(2);
-    } else if (isNaN(V1)) {
-        document.getElementById("result").innerHTML =
-            "V1 = " + ((P2 * V2) / P1).toFixed(2);
-    } else if (isNaN(P2)) {
-        document.getElementById("result").innerHTML =
-            "P2 = " + ((P1 * V1) / V2).toFixed(2);
-    } else {
-        document.getElementById("result").innerHTML =
-            "V2 = " + ((P1 * V1) / P2).toFixed(2);
+    var resultText = "";
+    if (isNaN(P1)) resultText = `P1 = ${((P2 * V2) / V1).toFixed(2)} ${unit}`;
+    else if (isNaN(V1)) resultText = `V1 = ${((P2 * V2) / P1).toFixed(2)}`;
+    else if (isNaN(P2)) resultText = `P2 = ${((P1 * V1) / V2).toFixed(2)} ${unit}`;
+    else resultText = `V2 = ${((P1 * V1) / P2).toFixed(2)}`;
+
+    document.getElementById("boyleResult").innerText = resultText;
+}
+
+function resetBoyle() {
+    document.getElementById("P1").value = "";
+    document.getElementById("V1").value = "";
+    document.getElementById("P2").value = "";
+    document.getElementById("V2").value = "";
+    document.getElementById("boyleResult").innerText = "";
+}
+
+// Cylinder Functions
+function calculateCylinder() {
+    let r = parseFloat(document.getElementById("radius").value);
+    let h = parseFloat(document.getElementById("height").value);
+    let inputUnit = document.getElementById("inputUnit").value;
+    let outputUnit = document.getElementById("outputUnit").value;
+
+    if(isNaN(r) || isNaN(h)) {
+        document.getElementById("cylinderResult").innerText = "Enter both radius and height!";
+        return;
     }
+
+    // Convert input to meters for internal calculation
+    let factor = 1;
+    if(inputUnit === "mm") factor = 0.001;
+    else if(inputUnit === "cm") factor = 0.01;
+
+    let r_m = r * factor;
+    let h_m = h * factor;
+
+    let volume_m3 = Math.PI * r_m * r_m * h_m;
+
+    let volumeResult = 0;
+    if(outputUnit === "mm3") volumeResult = volume_m3 * 1e9;
+    else if(outputUnit === "cm3") volumeResult = volume_m3 * 1e6;
+    else if(outputUnit === "L") volumeResult = volume_m3 * 1000;
+
+    document.getElementById("cylinderResult").innerText =
+        `Volume = ${volumeResult.toFixed(3)} ${outputUnit}`;
+}
+
+function resetCylinder() {
+    document.getElementById("radius").value = "";
+    document.getElementById("height").value = "";
+    document.getElementById("cylinderResult").innerText = "";
 }
 </script>
 
