@@ -118,8 +118,8 @@ button.reset {
     <option value="bar">bar</option>
 </select>
 
-<label>Cylinder Circumference</label>
-<select id="C">
+<label>Cylinder Diameter</label>
+<select id="diameter">
     <option value="2">2 inches</option>
     <option value="2.5">2.5 inches</option>
 </select>
@@ -227,8 +227,8 @@ function calculateBoyle(){
     let H1v = parseFloat(H1.value);
     let H2v = parseFloat(H2.value);
 
-    let C_in = parseFloat(C.value);
-    let r_m = (C_in / (2*Math.PI)) * 0.0254;
+    let D_in = parseFloat(diameter.value);
+    let r_m = (D_in / 2) * 0.0254; // radius in meters
     radiusDisplay.innerText = `Radius = ${(r_m/0.0254).toFixed(3)} inches`;
 
     let h1m = heightToMeters(H1v, H1Unit.value);
