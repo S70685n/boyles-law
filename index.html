@@ -102,9 +102,9 @@ button.reset {
 </div>
 
 <div class="tabs">
-    <button class="tab-button active" onclick="openTab('boyle')">Boyle’s Law</button>
-    <button class="tab-button" onclick="openTab('cylinder')">Cylinder Volume</button>
-    <button class="tab-button" onclick="openTab('rod')">Rod Force</button>
+    <button class="tab-button active" onclick="openTab(event,'boyle')">Boyle’s Law</button>
+    <button class="tab-button" onclick="openTab(event,'cylinder')">Shock Tube Volume</button>
+    <button class="tab-button" onclick="openTab(event,'rod')">Rod Force</button>
 </div>
 
 <!-- ================= BOYLE'S LAW ================= -->
@@ -153,15 +153,14 @@ button.reset {
 <div id="boyleResult" class="result"></div>
 </div>
 
-<!-- ================= CYLINDER VOLUME ================= -->
+<!-- ================= SHOCK TUBE VOLUME ================= -->
 <div id="cylinder" class="tab-content">
-<h2 style="text-align:center;">Cylinder Volume</h2>
+<h2 style="text-align:center;">Shock Tube Volume</h2>
 
 <label>Input Unit</label>
 <select id="volInputUnit">
     <option value="mm">mm</option>
-    <option value="cm">cm</option>
-    <option value="m">m</option>
+    <option value="in">inches</option>
 </select>
 
 <label>Radius</label>
@@ -173,7 +172,6 @@ button.reset {
 <label>Output Unit</label>
 <select id="volOutputUnit">
     <option value="mm3">mm³</option>
-    <option value="cm3">cm³</option>
     <option value="L">Liters</option>
 </select>
 
@@ -202,7 +200,7 @@ button.reset {
 <label>Shaft Size</label>
 <select id="shaft">
     <option value="0.196">1/2 inch</option>
-    <option value="0.307">5/8 inch</option>
+    <option value="0.307" selected>5/8 inch</option>
 </select>
 
 <button class="calc" onclick="calculateRod()">Calculate</button>
@@ -213,11 +211,11 @@ button.reset {
 
 <script>
 // ---------- Tabs ----------
-function openTab(id) {
+function openTab(evt, id) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-    event.currentTarget.classList.add('active');
+    evt.currentTarget.classList.add('active');
 }
 
 // ---------- Boyle’s Law ----------
@@ -261,13 +259,13 @@ function resetBoyle(){
     radiusDisplay.innerText="";
 }
 
-// ---------- Volume ----------
+// ---------- Shock Tube Volume ----------
 function calculateVolume(){
     let r=parseFloat(volRadius.value);
     let h=parseFloat(volHeight.value);
-    let f=volInputUnit.value==="mm"?0.001:volInputUnit.value==="cm"?0.01:1;
+    let f = volInputUnit.value==="mm"?0.001:0.0254; // mm -> m, inches -> m
     let V=Math.PI*(r*f)**2*(h*f);
-    let out=volOutputUnit.value==="mm3"?V*1e9:volOutputUnit.value==="cm3"?V*1e6:V*1000;
+    let out = volOutputUnit.value==="mm3"?V*1e9:V*1000; // mm³ or Liters
     volumeResult.innerText=`Volume = ${out.toFixed(3)} ${volOutputUnit.value}`;
 }
 function resetVolume(){ volRadius.value=""; volHeight.value=""; volumeResult.innerText=""; }
