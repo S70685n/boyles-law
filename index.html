@@ -93,10 +93,10 @@ button.reset {
     <button class="tab-button" onclick="openTab('rod')">Rod Force</button>
 </div>
 
-<!-- Boyle's Law Tab -->
+<!-- Boyle's Law Tab (Cylinder Heights) -->
 <div id="boyle" class="tab-content active">
-<h2 style="text-align:center;">Boyle’s Law Calculator</h2>
-<p style="text-align:center;">Leave ONE field empty</p>
+<h2 style="text-align:center;">Boyle’s Law Calculator (Cylinders)</h2>
+<p style="text-align:center;">Leave ONE field blank</p>
 
 <label>Pressure Unit:</label>
 <select id="pressureUnit">
@@ -104,13 +104,38 @@ button.reset {
     <option value="bar">bar</option>
 </select>
 
+<label>Initial Pressure (P1):</label>
 <input id="P1" placeholder="Initial Pressure">
-<input id="V1" placeholder="Initial Volume">
-<input id="P2" placeholder="Final Pressure">
-<input id="V2" placeholder="Final Volume">
 
-<button class="calc" onclick="calculateBoyle()">Calculate</button>
-<button class="reset" onclick="resetBoyle()">Reset</button>
+<label>Initial Cylinder Height:</label>
+<input id="H1" placeholder="Height of Cylinder">
+<select id="H1Unit">
+    <option value="in">inches</option>
+    <option value="mm">millimeters</option>
+</select>
+<label>Radius:</label>
+<select id="R1">
+    <option value="2">2 inches</option>
+    <option value="2.5">2.5 inches</option>
+</select>
+
+<label>Final Pressure (P2):</label>
+<input id="P2" placeholder="Final Pressure">
+
+<label>Final Cylinder Height:</label>
+<input id="H2" placeholder="Height of Cylinder">
+<select id="H2Unit">
+    <option value="in">inches</option>
+    <option value="mm">millimeters</option>
+</select>
+<label>Radius:</label>
+<select id="R2">
+    <option value="2">2 inches</option>
+    <option value="2.5">2.5 inches</option>
+</select>
+
+<button class="calc" onclick="calculateBoyleCylinder()">Calculate</button>
+<button class="reset" onclick="resetBoyleCylinder()">Reset</button>
 <div id="boyleResult" class="result"></div>
 </div>
 
@@ -169,6 +194,7 @@ button.reset {
 </div>
 
 <script>
+// Tab functionality
 function openTab(tabName) {
     var i, tabcontent, tabbuttons;
     tabcontent = document.getElementsByClassName("tab-content");
@@ -181,38 +207,71 @@ function openTab(tabName) {
     event.currentTarget.classList.add("active");
 }
 
-// Boyle's Law
-function calculateBoyle() {
-    var P1 = parseFloat(document.getElementById("P1").value);
-    var V1 = parseFloat(document.getElementById("V1").value);
-    var P2 = parseFloat(document.getElementById("P2").value);
-    var V2 = parseFloat(document.getElementById("V2").value);
-    var unit = document.getElementById("pressureUnit").value;
-    var empty = [P1, V1, P2, V2].filter(function(v){ return isNaN(v); }).length;
+// ---------------- Boyle's Law (Cylinder Heights, flexible units) ----------------
+function convertHeightToMeters(value, unit){
+    if(isNaN(value)) return NaN;
+    if(unit === "in") return value * 0.0254;
+    if(unit === "mm") return value / 1000;
+    return value;
+}
 
-    if (empty !== 1) {
+function calculateBoyleCylinder() {
+    const P1 = parseFloat(document.getElementById("P1").value);
+    const P2 = parseFloat(document.getElementById("P2").value);
+
+    const H1 = parseFloat(document.getElementById("H1").value);
+    const H1Unit = document.getElementById("H1Unit").value;
+    const R1 = parseFloat(document.getElementById("R1").value);
+
+    const H2 = parseFloat(document.getElementById("H2").value);
+    const H2Unit = document.getElementById("H2Unit").value;
+    const R2 = parseFloat(document.getElementById("R2").value);
+
+    const pressureUnit = document.getElementById("pressureUnit").value;
+
+    const h1_m = convertHeightToMeters(H1, H1Unit);
+    const h2_m = convertHeightToMeters(H2, H2Unit);
+
+    const r1_m = R1 * 0.0254;
+    const r2_m = R2 * 0.0254;
+
+    const V1 = Math.PI * r1_m * r1_m * h1_m;
+    const V2 = Math.PI * r2_m * r2_m * h2_m;
+
+    const emptyCount = [P1,P2,H1,H2].filter(v => isNaN(v)).length;
+    if(emptyCount !== 1){
         document.getElementById("boyleResult").innerText = "Leave exactly ONE field blank.";
         return;
     }
 
-    var resultText = "";
-    if (isNaN(P1)) resultText = `P1 = ${((P2 * V2) / V1).toFixed(2)} ${unit}`;
-    else if (isNaN(V1)) resultText = `V1 = ${((P2 * V2) / P1).toFixed(2)}`;
-    else if (isNaN(P2)) resultText = `P2 = ${((P1 * V1) / V2).toFixed(2)} ${unit}`;
-    else resultText = `V2 = ${((P1 * V1) / P2).toFixed(2)}`;
+    let resultText = "";
+    if(isNaN(P1)) resultText = `P1 = ${(P2*V2/V1).toFixed(2)} ${pressureUnit}`;
+    else if(isNaN(P2)) resultText = `P2 = ${(P1*V1/V2).toFixed(2)} ${pressureUnit}`;
+    else if(isNaN(H1)) {
+        const H1_calc = (V2*P2)/(Math.PI*r1_m*r1_m*P1);
+        resultText = `Initial Height H1 = ${(H1Unit === "in" ? (H1_calc/0.0254).toFixed(2) : (H1_calc*1000).toFixed(2))} ${H1Unit}`;
+    } 
+    else if(isNaN(H2)) {
+        const H2_calc = (V1*P1)/(Math.PI*r2_m*r2_m*P2);
+        resultText = `Final Height H2 = ${(H2Unit === "in" ? (H2_calc/0.0254).toFixed(2) : (H2_calc*1000).toFixed(2))} ${H2Unit}`;
+    }
 
     document.getElementById("boyleResult").innerText = resultText;
 }
 
-function resetBoyle() {
+function resetBoyleCylinder() {
     document.getElementById("P1").value = "";
-    document.getElementById("V1").value = "";
     document.getElementById("P2").value = "";
-    document.getElementById("V2").value = "";
+    document.getElementById("H1").value = "";
+    document.getElementById("H2").value = "";
+    document.getElementById("R1").value = "2";
+    document.getElementById("R2").value = "2";
+    document.getElementById("H1Unit").value = "in";
+    document.getElementById("H2Unit").value = "in";
     document.getElementById("boyleResult").innerText = "";
 }
 
-// Cylinder Volume
+// ---------------- Cylinder Volume ----------------
 function calculateCylinder() {
     let r = parseFloat(document.getElementById("radius").value);
     let h = parseFloat(document.getElementById("height").value);
@@ -248,11 +307,11 @@ function resetCylinder() {
     document.getElementById("cylinderResult").innerText = "";
 }
 
-// Rod Force
+// ---------------- Rod Force ----------------
 function updateRodUnits() {
     const inputType = document.getElementById("inputType").value;
     const unitSelect = document.getElementById("forceUnit");
-    unitSelect.innerHTML = ""; // Clear previous options
+    unitSelect.innerHTML = ""; 
 
     if(inputType === "force") {
         const options = [
@@ -294,12 +353,10 @@ function calculateRodForce() {
     let resultText = "";
 
     if(inputType === "force"){
-        // Force → psi
-        if(unit === "N") inputValue *= 0.224809; // convert to lbs
+        if(unit === "N") inputValue *= 0.224809;
         let psi = inputValue / shaftFactor;
         resultText = `Pressure = ${psi.toFixed(2)} psi`;
     } else if(inputType === "pressure"){
-        // psi → Force
         let lbsForce = inputValue * shaftFactor;
         let newtonsForce = lbsForce / 0.224809;
 
@@ -316,10 +373,10 @@ function resetRodForce() {
     document.getElementById("rodResult").innerText = "";
     document.getElementById("shaftSize").value = "0.196";
     document.getElementById("inputType").value = "force";
-    updateRodUnits(); // reset units
+    updateRodUnits(); 
 }
 
-// Initialize units on page load
+// Initialize rod units on page load
 updateRodUnits();
 </script>
 
