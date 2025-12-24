@@ -5,9 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gas & Cylinder & Rod Calculator</title>
 <style>
+/* --- Colors & Fonts --- */
 body {
     font-family: Arial, sans-serif;
-    background: #f4f6f8;
+    background: #e0f7fa; /* light blue background */
+    color: #003366; /* dark blue text */
     margin: 0;
     padding: 20px;
 }
@@ -21,17 +23,18 @@ body {
     padding: 12px;
     font-size: 16px;
     cursor: pointer;
-    background: #ddd;
+    background: #004d99; /* dark blue */
+    color: white;
     border: none;
     border-radius: 6px 6px 0 0;
     margin-right: 2px;
 }
 .tab-button.active {
-    background: #007bff;
+    background: #ff6600; /* orange active tab */
     color: white;
 }
 .tab-content {
-    background: white;
+    background: #ffffff; /* white content */
     border-radius: 0 6px 6px 6px;
     padding: 20px;
     display: none;
@@ -39,33 +42,50 @@ body {
 .tab-content.active {
     display: block;
 }
-input, button, select {
+input, select {
     width: 100%;
     padding: 14px;
     margin: 10px 0;
     font-size: 18px;
 }
 button.calc {
-    background: #007bff;
+    background: #ff6600; /* calculate button orange */
     color: white;
     border: none;
     border-radius: 6px;
+    padding: 14px;
+    font-size: 18px;
 }
 button.reset {
-    background: #6c757d;
+    background: #666666; /* reset button grey */
     color: white;
     border: none;
     border-radius: 6px;
+    padding: 14px;
+    font-size: 18px;
 }
 .result {
     text-align: center;
     font-weight: bold;
     font-size: 18px;
 }
+.logo-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.logo-container img {
+    max-width: 150px;
+}
 </style>
 </head>
 <body>
 
+<!-- Logo -->
+<div class="logo-container">
+    <img src="https://your-image-url.com/logo.png" alt="Logo">
+</div>
+
+<!-- Tabs -->
 <div class="tabs">
     <button class="tab-button active" onclick="openTab('boyle')">Boyle’s Law</button>
     <button class="tab-button" onclick="openTab('cylinder')">Cylinder Volume</button>
