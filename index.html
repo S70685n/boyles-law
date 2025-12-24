@@ -147,19 +147,15 @@ button.reset {
 <p style="text-align:center;">Choose input type and shaft size</p>
 
 <label>Input Type:</label>
-<select id="inputType">
+<select id="inputType" onchange="updateRodUnits()">
     <option value="force">Force (lbs/N → psi)</option>
     <option value="pressure">Pressure (psi → lbs/N)</option>
 </select>
 
-<input id="force" placeholder="Enter force or pressure value">
+<input id="force" placeholder="Enter value">
 
 <label>Unit:</label>
-<select id="forceUnit">
-    <option value="lbs">lbs</option>
-    <option value="N">Newtons (N)</option>
-    <option value="psi">psi</option>
-</select>
+<select id="forceUnit"></select>
 
 <label>Shaft Size:</label>
 <select id="shaftSize">
@@ -253,6 +249,37 @@ function resetCylinder() {
 }
 
 // Rod Force
+function updateRodUnits() {
+    const inputType = document.getElementById("inputType").value;
+    const unitSelect = document.getElementById("forceUnit");
+    unitSelect.innerHTML = ""; // Clear previous options
+
+    if(inputType === "force") {
+        const options = [
+            {value: "lbs", text: "lbs"},
+            {value: "N", text: "Newtons (N)"}
+        ];
+        options.forEach(opt => {
+            const option = document.createElement("option");
+            option.value = opt.value;
+            option.text = opt.text;
+            unitSelect.appendChild(option);
+        });
+    } else if(inputType === "pressure") {
+        const options = [
+            {value: "psi", text: "psi"},
+            {value: "lbs", text: "lbs"},
+            {value: "N", text: "Newtons (N)"}
+        ];
+        options.forEach(opt => {
+            const option = document.createElement("option");
+            option.value = opt.value;
+            option.text = opt.text;
+            unitSelect.appendChild(option);
+        });
+    }
+}
+
 function calculateRodForce() {
     let inputValue = parseFloat(document.getElementById("force").value);
     let unit = document.getElementById("forceUnit").value;
@@ -287,10 +314,13 @@ function calculateRodForce() {
 function resetRodForce() {
     document.getElementById("force").value = "";
     document.getElementById("rodResult").innerText = "";
-    document.getElementById("forceUnit").value = "lbs";
     document.getElementById("shaftSize").value = "0.196";
     document.getElementById("inputType").value = "force";
+    updateRodUnits(); // reset units
 }
+
+// Initialize units on page load
+updateRodUnits();
 </script>
 
 </body>
