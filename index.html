@@ -8,10 +8,17 @@
 /* --- Colors & Fonts --- */
 body {
     font-family: Arial, sans-serif;
-    background: #e0f7fa; /* light blue background */
-    color: #003366; /* dark blue text */
+    background: #f0f0f0; /* light grey background */
+    color: #003366;
     margin: 0;
     padding: 20px;
+}
+.logo-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.logo-container img {
+    max-width: 150px;
 }
 .tabs {
     display: flex;
@@ -20,18 +27,18 @@ body {
 }
 .tab-button {
     flex: 1;
-    padding: 12px;
-    font-size: 16px;
+    padding: 14px;
+    font-size: 18px; /* enlarged text */
     cursor: pointer;
-    background: #004d99; /* dark blue */
-    color: white;
+    background: #ff0000; /* red background */
+    color: black; /* black text */
     border: none;
     border-radius: 6px 6px 0 0;
     margin-right: 2px;
 }
 .tab-button.active {
-    background: #ff6600; /* orange active tab */
-    color: white;
+    background: #cc0000; /* darker red for active tab */
+    color: black;
 }
 .tab-content {
     background: #ffffff; /* white content */
@@ -49,32 +56,27 @@ input, select {
     font-size: 18px;
 }
 button.calc {
-    background: #ff6600; /* calculate button orange */
-    color: white;
+    background: #ff0000; /* red background */
+    color: black; /* black text */
     border: none;
     border-radius: 6px;
     padding: 14px;
     font-size: 18px;
+    margin-top: 10px;
 }
 button.reset {
-    background: #666666; /* reset button grey */
+    background: #666666; /* grey background */
     color: white;
     border: none;
     border-radius: 6px;
     padding: 14px;
     font-size: 18px;
+    margin-top: 10px;
 }
 .result {
     text-align: center;
     font-weight: bold;
-    font-size: 18px;
-}
-.logo-container {
-    text-align: center;
-    margin-bottom: 20px;
-}
-.logo-container img {
-    max-width: 150px;
+    font-size: 20px; /* larger result text */
 }
 </style>
 </head>
@@ -254,7 +256,6 @@ function calculateRodForce() {
         return;
     }
 
-    // Convert Newtons to lbs
     if (unit === "N") force = force * 0.224809;
 
     let psi = force / factor;
