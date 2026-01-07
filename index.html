@@ -84,9 +84,8 @@ button.calc {
     border-radius: 6px;
     cursor: pointer;
 }
-button.calc:hover {
-    background: #cc0000;
-}
+button.calc:hover { background: #cc0000; }
+
 button.reset {
     background: #666;
     color: white;
@@ -98,9 +97,7 @@ button.reset {
     margin-top: 10px;
     cursor: pointer;
 }
-button.reset:hover {
-    background: #444;
-}
+button.reset:hover { background: #444; }
 
 /* ---------- RESULTS ---------- */
 .result {
@@ -122,32 +119,52 @@ button.reset:hover {
     margin-bottom: 15px;
 }
 
+/* ---------- DIAGRAM BOX ---------- */
+.diagram-box {
+    width: 100%;
+    height: 200px;
+    background: #e0e0e0;
+    border: 2px solid #999;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    position: relative;
+}
+.cylinder {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    background: #ddd;
+    border: 2px solid red;
+    border-radius: 4px;
+}
+.cylinder-label {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    font-weight: bold;
+    color: #000;
+    font-size: 14px;
+}
+
 /* ---------- MOBILE RESPONSIVE ---------- */
 @media (max-width: 600px){
-    .tab-button {
-        font-size: 16px;
-        padding: 10px;
-    }
-    input, select {
-        font-size: 16px;
-        padding: 10px;
-    }
-    button.calc, button.reset {
-        font-size: 16px;
-        padding: 10px;
-    }
+    .tab-button { font-size: 16px; padding: 10px; }
+    input, select { font-size: 16px; padding: 10px; }
+    button.calc, button.reset { font-size: 16px; padding: 10px; }
+    .diagram-box { height: 150px; }
 }
 </style>
 </head>
 
 <body>
 
-<!-- ---------- LOGO ---------- -->
 <div class="logo-container">
     <img src="https://eibach.com/storage/img/branding/eibach-main-red.png" alt="Logo">
 </div>
 
-<!-- ---------- TABS ---------- -->
 <div class="tabs">
     <button class="tab-button active" onclick="openTab(event,'boyle')">Nitrogen Charge Pressure</button>
     <button class="tab-button" onclick="openTab(event,'rod')">Rod Force</button>
@@ -159,6 +176,8 @@ button.reset:hover {
 <h2>Nitrogen Charge Pressure</h2>
 <p class="subtitle">Leave ONE field blank</p>
 
+<div class="diagram-box" id="boyleDiagram"></div>
+
 <label>Pressure Unit</label>
 <select id="pressureUnit">
     <option value="psi">psi</option>
@@ -166,7 +185,7 @@ button.reset:hover {
 </select>
 
 <label>Shock Tube Diameter</label>
-<select id="diameter">
+<select id="diameter" onchange="updateBoyleDiagram()">
     <option value="2">2.0 inches</option>
     <option value="2.5">2.5 inches</option>
 </select>
@@ -174,16 +193,16 @@ button.reset:hover {
 <label>Derived Radius</label>
 <div id="radiusDisplay" style="margin-bottom:14px;font-weight:bold;"></div>
 
-<label>Starting Length of IFP to Bottom of shock tube or Reservoir cap to Reservoir IFP V1 (Select unit of measurement below)</label>
-<input id="H1">
-<select id="H1Unit">
+<label>Starting Length V1</label>
+<input id="H1" oninput="updateBoyleDiagram()">
+<select id="H1Unit" onchange="updateBoyleDiagram()">
     <option value="mm">millimeters</option>
     <option value="in">inches</option>
 </select>
 
-<label>Final Length of IFP to Bottom of shock tube or Reservoir cap to Reservoir IFP V2 (Select unit of measurement below)</label>
-<input id="H2">
-<select id="H2Unit">
+<label>Final Length V2</label>
+<input id="H2" oninput="updateBoyleDiagram()">
+<select id="H2Unit" onchange="updateBoyleDiagram()">
     <option value="mm">millimeters</option>
     <option value="in">inches</option>
 </select>
@@ -203,18 +222,21 @@ button.reset:hover {
 <!-- ================= SHOCK TUBE VOLUME ================= -->
 <div id="cylinder" class="tab-content">
 <h2>Shock Tube Volume</h2>
+<p class="subtitle">Visual cylinder representation</p>
+
+<div class="diagram-box" id="volumeDiagram"></div>
 
 <label>Input Unit</label>
-<select id="volInputUnit">
+<select id="volInputUnit" onchange="updateVolumeDiagram()">
     <option value="mm">mm</option>
     <option value="in">inches</option>
 </select>
 
 <label>Radius</label>
-<input id="volRadius">
+<input id="volRadius" oninput="updateVolumeDiagram()">
 
 <label>Height</label>
-<input id="volHeight">
+<input id="volHeight" oninput="updateVolumeDiagram()">
 
 <label>Output Unit</label>
 <select id="volOutputUnit">
@@ -267,7 +289,7 @@ function openTab(evt, id) {
 }
 
 // ---------- Boyle’s Law ----------
-function heightToMeters(v,u){ return u==="in" ? v*0.0254 : v/1000; }
+function heightToMeters(v,u){ return u==="in"?v*0.0254:v/1000; }
 
 function calculateBoyle(){
     let P1v = parseFloat(P1.value);
@@ -276,95 +298,5 @@ function calculateBoyle(){
     let H2v = parseFloat(H2.value);
 
     let D_in = parseFloat(diameter.value);
-    let r_m = (D_in / 2) * 0.0254; // radius in meters
-    radiusDisplay.innerText = `Radius = ${(r_m/0.0254).toFixed(3)} inches`;
-
-    let h1m = heightToMeters(H1v, H1Unit.value);
-    let h2m = heightToMeters(H2v, H2Unit.value);
-
-    let V1 = Math.PI * r_m * r_m * h1m;
-    let V2 = Math.PI * r_m * r_m * h2m;
-
-    let blanks = [P1v,P2v,H1v,H2v].filter(v=>isNaN(v)).length;
-    if(blanks !== 1){
-        boyleResult.innerText = "Leave exactly ONE field blank";
-        return;
-    }
-
-    if(isNaN(P1v))
-        boyleResult.innerText = `P1 = ${(P2v*V2/V1).toFixed(2)} ${pressureUnit.value}`;
-    else if(isNaN(P2v))
-        boyleResult.innerText = `P2 = ${(P1v*V1/V2).toFixed(2)} ${pressureUnit.value}`;
-    else if(isNaN(H1v))
-        boyleResult.innerText = `H1 = ${((V2*P2v)/(Math.PI*r_m*r_m*P1v)/(H1Unit.value==="in"?0.0254:0.001)).toFixed(2)} ${H1Unit.value}`;
-    else
-        boyleResult.innerText = `H2 = ${((V1*P1v)/(Math.PI*r_m*r_m*P2v)/(H2Unit.value==="in"?0.0254:0.001)).toFixed(2)} ${H2Unit.value}`;
-}
-
-function resetBoyle(){
-    ["P1","P2","H1","H2"].forEach(id=>document.getElementById(id).value="");
-    boyleResult.innerText="";
-    radiusDisplay.innerText="";
-}
-
-// ---------- Shock Tube Volume ----------
-function calculateVolume(){
-    let r=parseFloat(volRadius.value);
-    let h=parseFloat(volHeight.value);
-    let f = volInputUnit.value==="mm"?0.001:0.0254; // mm -> m, inches -> m
-    let V=Math.PI*(r*f)**2*(h*f);
-    let out = volOutputUnit.value==="mm3"?V*1e9:V*1000; // mm³ or Liters
-    volumeResult.innerText=`Volume = ${out.toFixed(3)} ${volOutputUnit.value}`;
-}
-function resetVolume(){ volRadius.value=""; volHeight.value=""; volumeResult.innerText=""; }
-
-// ---------- Rod Force ----------
-function updateRodUnits(){
-    rodUnit.innerHTML="";
-    if(rodType.value==="force"){
-        rodUnit.innerHTML =
-            "<option value='lbs'>lbs</option>" +
-            "<option value='N'>Newtons</option>";
-    } else {
-        rodUnit.innerHTML =
-            "<option value='psi'>psi</option>" +
-            "<option value='bar'>bar</option>";
-    }
-}
-function calculateRod(){
-    let v = parseFloat(rodValue.value);
-    let f = parseFloat(shaft.value);
-
-    if (isNaN(v)) {
-        rodResult.innerText = "Enter a valid value";
-        return;
-    }
-
-    if (rodType.value === "force") {
-        // FORCE → PRESSURE
-        if (rodUnit.value === "N") v *= 0.224809;
-
-        let psi = v / f;
-        let bar = psi / 14.5038;
-
-        rodResult.innerText =
-            `Pressure = ${psi.toFixed(2)} psi (${bar.toFixed(2)} bar)`;
-
-    } else {
-        // PRESSURE → FORCE
-        let psi = (rodUnit.value === "bar") ? v * 14.5038 : v;
-
-        let lbs = psi * f;
-        let newtons = lbs / 0.224809;
-
-        rodResult.innerText =
-            `Force = ${lbs.toFixed(2)} lbs (${newtons.toFixed(2)} N)`;
-    }
-}
-function resetRod(){ rodValue.value=""; rodResult.innerText=""; }
-
-updateRodUnits();
-</script>
-
-</body>
-</html>
+    let r_m = (D_in / 2) * 0.0254;
+    radiusDisplay.innerText = `Radius = ${(r_m/0.0254).toFixed(3)} inches_
