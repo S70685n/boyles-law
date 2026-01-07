@@ -122,6 +122,20 @@ button.reset:hover {
     margin-bottom: 15px;
 }
 
+/* ---------- CYLINDER LEGEND ---------- */
+.cylinder-legend {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 14px;
+}
+.cylinder-legend span {
+    display: inline-block;
+    width: 20px;
+    height: 14px;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
 /* ---------- MOBILE RESPONSIVE ---------- */
 @media (max-width: 600px){
     .tab-button {
@@ -201,6 +215,13 @@ button.reset:hover {
 
 <!-- Canvas for V1 and V2 cylinders -->
 <canvas id="boyleCanvas" width="400" height="300" style="border:1px solid #ccc; display:block; margin:20px auto;"></canvas>
+
+<!-- Cylinder Legend -->
+<div class="cylinder-legend">
+    <span style="background-color:#1E90FF;"></span> V1 (Starting)
+    &nbsp;&nbsp;
+    <span style="background-color:#228B22;"></span> V2 (Final)
+</div>
 </div>
 
 <!-- ================= SHOCK TUBE VOLUME ================= -->
@@ -229,9 +250,6 @@ button.reset:hover {
 <button class="reset" onclick="resetVolume()">Reset</button>
 
 <div id="volumeResult" class="result"></div>
-
-<!-- Canvas for Shock Tube -->
-<canvas id="volumeCanvas" width="200" height="300" style="border:1px solid #ccc; display:block; margin:20px auto;"></canvas>
 </div>
 
 <!-- ================= ROD FORCE ================= -->
@@ -244,7 +262,7 @@ button.reset:hover {
     <option value="pressure">Nitrogen Pressure to Rod Force</option>
 </select>
 
-<label>Unit</label>
+<label>Unit (Verify whether Dyno test is in LBS or Newtons)</label>
 <select id="rodUnit"></select>
 
 <label>Value (Rod Force reading on Dyno or Nitrogen pressure specification)</label>
@@ -303,6 +321,7 @@ function calculateBoyle(){
     else if(isNaN(H1v)) boyleResult.innerText=`H1 = ${((V2*P2v)/(Math.PI*r_m*r_m*P1v)/(H1Unit.value==="in"?0.0254:0.001)).toFixed(2)} ${H1Unit.value}`;
     else boyleResult.innerText=`H2 = ${((V1*P1v)/(Math.PI*r_m*r_m*P2v)/(H2Unit.value==="in"?0.0254:0.001)).toFixed(2)} ${H2Unit.value}`;
 
+    // Animate cylinders for V1 and V2
     animateCylinder(document.getElementById("boyleCanvas"),boylePrevHeights.v1,h1m,h => drawBoyleDiagram(r_m,h,h2m));
     animateCylinder(document.getElementById("boyleCanvas"),boylePrevHeights.v2,h2m,h => drawBoyleDiagram(r_m,h1m,h));
     boylePrevHeights.v1=h1m; boylePrevHeights.v2=h2m;
@@ -323,10 +342,6 @@ function drawBoyleDiagram(radius,h1,h2){
     let grad2=ctx.createLinearGradient(0,yOffset,0,yOffset+h2*scale);
     grad2.addColorStop(0,"#98FB98"); grad2.addColorStop(1,"#228B22");
     ctx.fillStyle=grad2; ctx.fillRect(x+r_px+20,yOffset,2*r_px,h2*scale);
-
-    ctx.strokeStyle="red"; ctx.beginPath();
-    ctx.moveTo(x,canvas.height-10); ctx.lineTo(x+r_px,canvas.height-10); ctx.stroke();
-    ctx.moveTo(x+r_px+20,canvas.height-10); ctx.lineTo(x+3*r_px+20,canvas.height-10); ctx.stroke();
 }
 
 function resetBoyle(){
@@ -344,22 +359,8 @@ function calculateVolume(){
     let V=Math.PI*(r*f)**2*(h*f);
     let out=volOutputUnit.value==="mm3"?V*1e9:V*1000;
     volumeResult.innerText=`Volume = ${out.toFixed(3)} ${volOutputUnit.value}`;
-    animateCylinder(document.getElementById("volumeCanvas"),volumePrevHeight,h*f,h => drawVolumeDiagram(r*f,h));
-    volumePrevHeight=h*f;
 }
-
-function drawVolumeDiagram(radius,h){
-    let canvas=document.getElementById("volumeCanvas"); let ctx=canvas.getContext("2d");
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    let scale=canvas.height*0.8/h, r_px=radius*39.37*10, x=canvas.width/2, yOffset=20;
-    let grad=ctx.createLinearGradient(0,yOffset,0,yOffset+h*scale); grad.addColorStop(0,"#FFD700"); grad.addColorStop(1,"#FFA500");
-    ctx.fillStyle=grad; ctx.fillRect(x-r_px,yOffset,2*r_px,h*scale);
-    ctx.strokeStyle="red"; ctx.beginPath(); ctx.moveTo(x,canvas.height-10); ctx.lineTo(x+r_px,canvas.height-10); ctx.stroke();
-}
-
-function resetVolume(){ volRadius.value=""; volHeight.value=""; volumeResult.innerText="";
-    let ctx=document.getElementById("volumeCanvas").getContext("2d"); ctx.clearRect(0,0,200,300); volumePrevHeight=0;
-}
+function resetVolume(){ volRadius.value=""; volHeight.value=""; volumeResult.innerText=""; }
 
 // ---------- Rod Force ----------
 function updateRodUnits(){
