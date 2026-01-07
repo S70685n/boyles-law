@@ -182,7 +182,6 @@ button.reset {
 </div>
 
 <!-- ================= ROD FORCE ================= -->
-<!-- ================= ROD FORCE ================= -->
 <div id="rod" class="tab-content">
 <h2 style="text-align:center;">Rod Force</h2>
 
@@ -195,15 +194,15 @@ button.reset {
 <label>Unit (Verify whether dyno test is in LBS or Newtons)</label>
 <select id="rodUnit"></select>
 
-<label>Value (Reading on dyno)</label>
-<input id="rodValue">
-
 <label>Shaft Size</label>
 <select id="shaft">
     <option value="0.196">1/2 inch</option>
     <option value="0.307" selected>5/8 inch</option>
     <option value="0.601">7/8 inch</option>
 </select>
+
+<label>Value (Reading on dyno)</label>
+<input id="rodValue">
 
 <button class="calc" onclick="calculateRod()">Calculate</button>
 <button class="reset" onclick="resetRod()">Reset</button>
