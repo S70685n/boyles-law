@@ -102,14 +102,14 @@ button.reset {
 </div>
 
 <div class="tabs">
-    <button class="tab-button active" onclick="openTab(event,'boyle')">Boyle’s Law</button>
-    <button class="tab-button" onclick="openTab(event,'cylinder')">Shock Tube Volume</button>
+    <button class="tab-button active" onclick="openTab(event,'boyle')">Nitrogen Charge Pressure</button>
     <button class="tab-button" onclick="openTab(event,'rod')">Rod Force</button>
+    <button class="tab-button" onclick="openTab(event,'cylinder')">Shock Tube Volume</button>
 </div>
 
 <!-- ================= BOYLE'S LAW ================= -->
 <div id="boyle" class="tab-content active">
-<h2 style="text-align:center;">Boyle’s Law (Cylinders)</h2>
+<h2 style="text-align:center;">Boyle’s Law</h2>
 <p style="text-align:center;">Leave ONE field blank</p>
 
 <label>Pressure Unit</label>
@@ -118,34 +118,34 @@ button.reset {
     <option value="bar">bar</option>
 </select>
 
-<label>Cylinder Diameter</label>
+<label>Shock Tube Diameter</label>
 <select id="diameter">
-    <option value="2">2 inches</option>
+    <option value="2">2.0 inches</option>
     <option value="2.5">2.5 inches</option>
 </select>
 
 <label>Derived Radius</label>
 <div id="radiusDisplay" style="margin-bottom:14px;font-weight:bold;"></div>
 
-<label>Initial Pressure (P1)</label>
-<input id="P1">
-
-<label>Final Pressure (P2)</label>
-<input id="P2">
-
-<label>Initial Height (V1)</label>
+<label>Starting Length of IFP to Bottom of shock tube or Reservior cap to Reservior IFP V1 (Resevior shock shaft needs to be fully extended during measurements)(Select unit of measurement below)</label>
 <input id="H1">
 <select id="H1Unit">
     <option value="in">inches</option>
     <option value="mm">millimeters</option>
 </select>
 
-<label>Final Height (V2)</label>
+<label>Final Length of IFP to Bottom of shock tube or Reservior cap to Reservior IFP V2 (Select unit of measurement below)</label>
 <input id="H2">
 <select id="H2Unit">
     <option value="in">inches</option>
     <option value="mm">millimeters</option>
 </select>
+
+<label>Final Nitrogen Pressure P2</label>
+<input id="P2">    
+    
+<label>Initial Nitrogen Pressure P1</label>
+<input id="P1">
 
 <button class="calc" onclick="calculateBoyle()">Calculate</button>
 <button class="reset" onclick="resetBoyle()">Reset</button>
