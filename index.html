@@ -6,6 +6,7 @@
 <title>Engineering Calculators</title>
 
 <style>
+/* ---------- GENERAL ---------- */
 body {
     font-family: Arial, sans-serif;
     background: #f0f0f0;
@@ -13,21 +14,21 @@ body {
     padding: 20px;
 }
 
+/* ---------- LOGO ---------- */
 .logo-container {
     text-align: center;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
-
 .logo-container img {
     max-width: 160px;
 }
 
+/* ---------- TABS ---------- */
 .tabs {
     display: flex;
     gap: 4px;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
-
 .tab-button {
     flex: 1;
     background: red;
@@ -37,34 +38,42 @@ body {
     font-size: 18px;
     cursor: pointer;
     border-radius: 6px 6px 0 0;
+    transition: background 0.3s;
 }
-
 .tab-button.active {
     background: #cc0000;
 }
 
+/* ---------- CARD LAYOUT ---------- */
 .tab-content {
     display: none;
-    background: white;
+    background: #fff;
     padding: 20px;
     border-radius: 0 6px 6px 6px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
 }
-
 .tab-content.active {
     display: block;
 }
 
+/* ---------- FORM ELEMENTS ---------- */
 label {
     font-weight: bold;
+    display: block;
+    margin-bottom: 6px;
 }
-
 input, select {
     width: 100%;
-    padding: 14px;
-    margin: 8px 0 14px 0;
+    padding: 12px;
+    margin-bottom: 14px;
     font-size: 18px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
 }
 
+/* ---------- BUTTONS ---------- */
 button.calc {
     background: red;
     color: black;
@@ -73,8 +82,11 @@ button.calc {
     padding: 14px;
     font-size: 18px;
     border-radius: 6px;
+    cursor: pointer;
 }
-
+button.calc:hover {
+    background: #cc0000;
+}
 button.reset {
     background: #666;
     color: white;
@@ -84,33 +96,68 @@ button.reset {
     font-size: 18px;
     border-radius: 6px;
     margin-top: 10px;
+    cursor: pointer;
+}
+button.reset:hover {
+    background: #444;
 }
 
+/* ---------- RESULTS ---------- */
 .result {
     margin-top: 15px;
     font-size: 20px;
     font-weight: bold;
     text-align: center;
 }
+
+/* ---------- CARD HEADER ---------- */
+.tab-content h2 {
+    text-align: center;
+    margin-bottom: 6px;
+}
+.tab-content p.subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+/* ---------- MOBILE RESPONSIVE ---------- */
+@media (max-width: 600px){
+    .tab-button {
+        font-size: 16px;
+        padding: 10px;
+    }
+    input, select {
+        font-size: 16px;
+        padding: 10px;
+    }
+    button.calc, button.reset {
+        font-size: 16px;
+        padding: 10px;
+    }
+}
 </style>
 </head>
 
 <body>
 
+<!-- ---------- LOGO ---------- -->
 <div class="logo-container">
     <img src="https://eibach.com/storage/img/branding/eibach-main-red.png" alt="Logo">
 </div>
 
+<!-- ---------- TABS ---------- -->
 <div class="tabs">
     <button class="tab-button active" onclick="openTab(event,'boyle')">Nitrogen Charge Pressure</button>
     <button class="tab-button" onclick="openTab(event,'rod')">Rod Force</button>
     <button class="tab-button" onclick="openTab(event,'cylinder')">Shock Tube Volume</button>
 </div>
 
-<!-- ================= BOYLE'S LAW ================= -->
+<!-- ================= NITROGEN CHARGE PRESSURE ================= -->
 <div id="boyle" class="tab-content active">
-<h2 style="text-align:center;">Boyle’s Law</h2>
-<p style="text-align:center;">Leave ONE field blank</p>
+<h2>Nitrogen Charge Pressure</h2>
+<p class="subtitle">Leave ONE field blank</p>
 
 <label>Pressure Unit</label>
 <select id="pressureUnit">
@@ -127,7 +174,7 @@ button.reset {
 <label>Derived Radius</label>
 <div id="radiusDisplay" style="margin-bottom:14px;font-weight:bold;"></div>
 
-<label>Starting Length of IFP to Bottom of shock tube or Reservoir cap to Reservoir IFP V1 (Reservoir shock shaft needs to be fully extended during measurements)(Select unit of measurement below)</label>
+<label>Starting Length of IFP to Bottom of shock tube or Reservoir cap to Reservoir IFP V1 (Select unit of measurement below)</label>
 <input id="H1">
 <select id="H1Unit">
     <option value="mm">millimeters</option>
@@ -142,8 +189,8 @@ button.reset {
 </select>
 
 <label>Final Nitrogen Pressure P2</label>
-<input id="P2">    
-    
+<input id="P2">
+
 <label>Initial Nitrogen Pressure P1</label>
 <input id="P1">
 
@@ -155,7 +202,7 @@ button.reset {
 
 <!-- ================= SHOCK TUBE VOLUME ================= -->
 <div id="cylinder" class="tab-content">
-<h2 style="text-align:center;">Shock Tube Volume</h2>
+<h2>Shock Tube Volume</h2>
 
 <label>Input Unit</label>
 <select id="volInputUnit">
@@ -183,7 +230,7 @@ button.reset {
 
 <!-- ================= ROD FORCE ================= -->
 <div id="rod" class="tab-content">
-<h2 style="text-align:center;">Rod Force</h2>
+<h2>Rod Force</h2>
 
 <label>Input Type</label>
 <select id="rodType" onchange="updateRodUnits()">
@@ -191,8 +238,11 @@ button.reset {
     <option value="pressure">Nitrogen Pressure to Rod Force</option>
 </select>
 
-<label>Unit of Measurement</label>
+<label>Unit (Verify whether Dyno test is in LBS or Newtons)</label>
 <select id="rodUnit"></select>
+
+<label>Value (Rod Force reading on Dyno or Nitrogen pressure specification)</label>
+<input id="rodValue">
 
 <label>Shaft Size</label>
 <select id="shaft">
@@ -200,9 +250,6 @@ button.reset {
     <option value="0.307" selected>5/8 inch</option>
     <option value="0.601">7/8 inch</option>
 </select>
-
-<label>Value (Rod Force reading on dyno or Nitrogen pressure specification)</label>
-<input id="rodValue">
 
 <button class="calc" onclick="calculateRod()">Calculate</button>
 <button class="reset" onclick="resetRod()">Reset</button>
@@ -295,7 +342,6 @@ function calculateRod(){
 
     if (rodType.value === "force") {
         // FORCE → PRESSURE
-        // Convert Newtons → lbs if needed
         if (rodUnit.value === "N") v *= 0.224809;
 
         let psi = v / f;
@@ -306,7 +352,6 @@ function calculateRod(){
 
     } else {
         // PRESSURE → FORCE
-        // Convert bar → psi FIRST
         let psi = (rodUnit.value === "bar") ? v * 14.5038 : v;
 
         let lbs = psi * f;
