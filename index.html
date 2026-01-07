@@ -285,14 +285,35 @@ function updateRodUnits(){
     }
 }
 function calculateRod(){
-    let v=parseFloat(rodValue.value);
-    let f=parseFloat(shaft.value);
-    if(rodType.value==="force"){
-        if(rodUnit.value==="N") v*=0.224809;
-        rodResult.innerText=`Pressure = ${(v/f).toFixed(2)} psi`;
+    let v = parseFloat(rodValue.value);
+    let f = parseFloat(shaft.value);
+
+    if (isNaN(v)) {
+        rodResult.innerText = "Enter a valid value";
+        return;
+    }
+
+    if (rodType.value === "force") {
+        // FORCE → PRESSURE
+        // Convert Newtons → lbs if needed
+        if (rodUnit.value === "N") v *= 0.224809;
+
+        let psi = v / f;
+        let bar = psi / 14.5038;
+
+        rodResult.innerText =
+            `Pressure = ${psi.toFixed(2)} psi (${bar.toFixed(2)} bar)`;
+
     } else {
-        let lbs=v*f;
-        rodResult.innerText=`Force = ${lbs.toFixed(2)} lbs (${(lbs/0.224809).toFixed(2)} N)`;
+        // PRESSURE → FORCE
+        // Convert bar → psi FIRST
+        let psi = (rodUnit.value === "bar") ? v * 14.5038 : v;
+
+        let lbs = psi * f;
+        let newtons = lbs / 0.224809;
+
+        rodResult.innerText =
+            `Force = ${lbs.toFixed(2)} lbs (${newtons.toFixed(2)} N)`;
     }
 }
 function resetRod(){ rodValue.value=""; rodResult.innerText=""; }
