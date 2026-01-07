@@ -187,8 +187,8 @@ button.reset {
 
 <label>Input Type</label>
 <select id="rodType" onchange="updateRodUnits()">
-    <option value="force">Force → Pressure</option>
-    <option value="pressure">Pressure → Force</option>
+    <option value="force">Force (LBS or N) to Pressure (PSI or Bar)</option>
+    <option value="pressure">Pressure (PSI or Bar) to Force (LBS or N)</option>
 </select>
 
 <label>Unit (Verify whether dyno test is in LBS or Newtons)</label>
@@ -201,7 +201,7 @@ button.reset {
     <option value="0.601">7/8 inch</option>
 </select>
 
-<label>Value (Reading on dyno)</label>
+<label>Value (Rod Force reading on dyno or Nitrogen pressure specification)</label>
 <input id="rodValue">
 
 <button class="calc" onclick="calculateRod()">Calculate</button>
@@ -275,9 +275,13 @@ function resetVolume(){ volRadius.value=""; volHeight.value=""; volumeResult.inn
 function updateRodUnits(){
     rodUnit.innerHTML="";
     if(rodType.value==="force"){
-        rodUnit.innerHTML="<option value='lbs'>lbs</option><option value='N'>N</option>";
+        rodUnit.innerHTML =
+            "<option value='lbs'>lbs</option>" +
+            "<option value='N'>Newtons</option>";
     } else {
-        rodUnit.innerHTML="<option value='psi'>psi</option>";
+        rodUnit.innerHTML =
+            "<option value='psi'>psi</option>" +
+            "<option value='bar'>bar</option>";
     }
 }
 function calculateRod(){
