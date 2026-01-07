@@ -84,8 +84,9 @@ button.calc {
     border-radius: 6px;
     cursor: pointer;
 }
-button.calc:hover { background: #cc0000; }
-
+button.calc:hover {
+    background: #cc0000;
+}
 button.reset {
     background: #666;
     color: white;
@@ -97,7 +98,9 @@ button.reset {
     margin-top: 10px;
     cursor: pointer;
 }
-button.reset:hover { background: #444; }
+button.reset:hover {
+    background: #444;
+}
 
 /* ---------- RESULTS ---------- */
 .result {
@@ -119,52 +122,32 @@ button.reset:hover { background: #444; }
     margin-bottom: 15px;
 }
 
-/* ---------- DIAGRAM BOX ---------- */
-.diagram-box {
-    width: 100%;
-    height: 200px;
-    background: #e0e0e0;
-    border: 2px solid #999;
-    border-radius: 6px;
-    margin-bottom: 20px;
-    position: relative;
-}
-.cylinder {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 50px;
-    background: #ddd;
-    border: 2px solid red;
-    border-radius: 4px;
-}
-.cylinder-label {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-    font-weight: bold;
-    color: #000;
-    font-size: 14px;
-}
-
 /* ---------- MOBILE RESPONSIVE ---------- */
 @media (max-width: 600px){
-    .tab-button { font-size: 16px; padding: 10px; }
-    input, select { font-size: 16px; padding: 10px; }
-    button.calc, button.reset { font-size: 16px; padding: 10px; }
-    .diagram-box { height: 150px; }
+    .tab-button {
+        font-size: 16px;
+        padding: 10px;
+    }
+    input, select {
+        font-size: 16px;
+        padding: 10px;
+    }
+    button.calc, button.reset {
+        font-size: 16px;
+        padding: 10px;
+    }
 }
 </style>
 </head>
 
 <body>
 
+<!-- ---------- LOGO ---------- -->
 <div class="logo-container">
     <img src="https://eibach.com/storage/img/branding/eibach-main-red.png" alt="Logo">
 </div>
 
+<!-- ---------- TABS ---------- -->
 <div class="tabs">
     <button class="tab-button active" onclick="openTab(event,'boyle')">Nitrogen Charge Pressure</button>
     <button class="tab-button" onclick="openTab(event,'rod')">Rod Force</button>
@@ -176,8 +159,6 @@ button.reset:hover { background: #444; }
 <h2>Nitrogen Charge Pressure</h2>
 <p class="subtitle">Leave ONE field blank</p>
 
-<div class="diagram-box" id="boyleDiagram"></div>
-
 <label>Pressure Unit</label>
 <select id="pressureUnit">
     <option value="psi">psi</option>
@@ -185,7 +166,7 @@ button.reset:hover { background: #444; }
 </select>
 
 <label>Shock Tube Diameter</label>
-<select id="diameter" onchange="updateBoyleDiagram()">
+<select id="diameter">
     <option value="2">2.0 inches</option>
     <option value="2.5">2.5 inches</option>
 </select>
@@ -193,16 +174,16 @@ button.reset:hover { background: #444; }
 <label>Derived Radius</label>
 <div id="radiusDisplay" style="margin-bottom:14px;font-weight:bold;"></div>
 
-<label>Starting Length V1</label>
-<input id="H1" oninput="updateBoyleDiagram()">
-<select id="H1Unit" onchange="updateBoyleDiagram()">
+<label>Starting Length of IFP to Bottom of shock tube or Reservoir cap to Reservoir IFP V1 (Select unit of measurement below)</label>
+<input id="H1">
+<select id="H1Unit">
     <option value="mm">millimeters</option>
     <option value="in">inches</option>
 </select>
 
-<label>Final Length V2</label>
-<input id="H2" oninput="updateBoyleDiagram()">
-<select id="H2Unit" onchange="updateBoyleDiagram()">
+<label>Final Length of IFP to Bottom of shock tube or Reservoir cap to Reservoir IFP V2 (Select unit of measurement below)</label>
+<input id="H2">
+<select id="H2Unit">
     <option value="mm">millimeters</option>
     <option value="in">inches</option>
 </select>
@@ -217,26 +198,26 @@ button.reset:hover { background: #444; }
 <button class="reset" onclick="resetBoyle()">Reset</button>
 
 <div id="boyleResult" class="result"></div>
+
+<!-- Canvas for V1 and V2 cylinders -->
+<canvas id="boyleCanvas" width="400" height="300" style="border:1px solid #ccc; display:block; margin:20px auto;"></canvas>
 </div>
 
 <!-- ================= SHOCK TUBE VOLUME ================= -->
 <div id="cylinder" class="tab-content">
 <h2>Shock Tube Volume</h2>
-<p class="subtitle">Visual cylinder representation</p>
-
-<div class="diagram-box" id="volumeDiagram"></div>
 
 <label>Input Unit</label>
-<select id="volInputUnit" onchange="updateVolumeDiagram()">
+<select id="volInputUnit">
     <option value="mm">mm</option>
     <option value="in">inches</option>
 </select>
 
 <label>Radius</label>
-<input id="volRadius" oninput="updateVolumeDiagram()">
+<input id="volRadius">
 
 <label>Height</label>
-<input id="volHeight" oninput="updateVolumeDiagram()">
+<input id="volHeight">
 
 <label>Output Unit</label>
 <select id="volOutputUnit">
@@ -248,6 +229,9 @@ button.reset:hover { background: #444; }
 <button class="reset" onclick="resetVolume()">Reset</button>
 
 <div id="volumeResult" class="result"></div>
+
+<!-- Canvas for Shock Tube -->
+<canvas id="volumeCanvas" width="200" height="300" style="border:1px solid #ccc; display:block; margin:20px auto;"></canvas>
 </div>
 
 <!-- ================= ROD FORCE ================= -->
@@ -260,7 +244,7 @@ button.reset:hover { background: #444; }
     <option value="pressure">Nitrogen Pressure to Rod Force</option>
 </select>
 
-<label>Unit (Verify whether Dyno test is in LBS or Newtons)</label>
+<label>Unit</label>
 <select id="rodUnit"></select>
 
 <label>Value (Rod Force reading on Dyno or Nitrogen pressure specification)</label>
@@ -281,22 +265,124 @@ button.reset:hover { background: #444; }
 
 <script>
 // ---------- Tabs ----------
-function openTab(evt, id) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+function openTab(evt,id){
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-button').forEach(b=>b.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     evt.currentTarget.classList.add('active');
 }
 
-// ---------- Boyle’s Law ----------
-function heightToMeters(v,u){ return u==="in"?v*0.0254:v/1000; }
+// ---------- Helpers ----------
+function heightToMeters(v,u){return u==="in"?v*0.0254:v/1000;}
+function animateCylinder(canvas,prevHeight,targetHeight,drawFunc){
+    let startHeight=prevHeight||0;
+    let startTime=null;
+    function animate(time){
+        if(!startTime) startTime=time;
+        let progress=Math.min((time-startTime)/500,1);
+        let currentHeight=startHeight+(targetHeight-startHeight)*progress;
+        drawFunc(currentHeight);
+        if(progress<1) requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+}
 
+// ---------- Boyle's Law ----------
+let boylePrevHeights={v1:0,v2:0};
 function calculateBoyle(){
-    let P1v = parseFloat(P1.value);
-    let P2v = parseFloat(P2.value);
-    let H1v = parseFloat(H1.value);
-    let H2v = parseFloat(H2.value);
+    let P1v=parseFloat(P1.value),P2v=parseFloat(P2.value),H1v=parseFloat(H1.value),H2v=parseFloat(H2.value);
+    let D_in=parseFloat(diameter.value);
+    let r_m=(D_in/2)*0.0254;
+    radiusDisplay.innerText=`Radius = ${(r_m/0.0254).toFixed(3)} inches`;
+    let h1m=heightToMeters(H1v,H1Unit.value),h2m=heightToMeters(H2v,H2Unit.value);
+    let V1=Math.PI*r_m*r_m*h1m,V2=Math.PI*r_m*r_m*h2m;
+    let blanks=[P1v,P2v,H1v,H2v].filter(v=>isNaN(v)).length;
+    if(blanks!==1){boyleResult.innerText="Leave exactly ONE field blank"; return;}
+    if(isNaN(P1v)) boyleResult.innerText=`P1 = ${(P2v*V2/V1).toFixed(2)} ${pressureUnit.value}`;
+    else if(isNaN(P2v)) boyleResult.innerText=`P2 = ${(P1v*V1/V2).toFixed(2)} ${pressureUnit.value}`;
+    else if(isNaN(H1v)) boyleResult.innerText=`H1 = ${((V2*P2v)/(Math.PI*r_m*r_m*P1v)/(H1Unit.value==="in"?0.0254:0.001)).toFixed(2)} ${H1Unit.value}`;
+    else boyleResult.innerText=`H2 = ${((V1*P1v)/(Math.PI*r_m*r_m*P2v)/(H2Unit.value==="in"?0.0254:0.001)).toFixed(2)} ${H2Unit.value}`;
 
-    let D_in = parseFloat(diameter.value);
-    let r_m = (D_in / 2) * 0.0254;
-    radiusDisplay.innerText = `Radius = ${(r_m/0.0254).toFixed(3)} inches_
+    animateCylinder(document.getElementById("boyleCanvas"),boylePrevHeights.v1,h1m,h => drawBoyleDiagram(r_m,h,h2m));
+    animateCylinder(document.getElementById("boyleCanvas"),boylePrevHeights.v2,h2m,h => drawBoyleDiagram(r_m,h1m,h));
+    boylePrevHeights.v1=h1m; boylePrevHeights.v2=h2m;
+}
+
+function drawBoyleDiagram(radius,h1,h2){
+    let canvas=document.getElementById("boyleCanvas"); let ctx=canvas.getContext("2d");
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    let maxHeight=Math.max(h1,h2),scale=canvas.height*0.8/maxHeight;
+    let r_px=radius*39.37*10,x=canvas.width/2,yOffset=20;
+
+    // V1 Cylinder
+    let grad1=ctx.createLinearGradient(0,yOffset,0,yOffset+h1*scale);
+    grad1.addColorStop(0,"#87CEFA"); grad1.addColorStop(1,"#1E90FF");
+    ctx.fillStyle=grad1; ctx.fillRect(x-r_px,yOffset,2*r_px,h1*scale);
+
+    // V2 Cylinder
+    let grad2=ctx.createLinearGradient(0,yOffset,0,yOffset+h2*scale);
+    grad2.addColorStop(0,"#98FB98"); grad2.addColorStop(1,"#228B22");
+    ctx.fillStyle=grad2; ctx.fillRect(x+r_px+20,yOffset,2*r_px,h2*scale);
+
+    ctx.strokeStyle="red"; ctx.beginPath();
+    ctx.moveTo(x,canvas.height-10); ctx.lineTo(x+r_px,canvas.height-10); ctx.stroke();
+    ctx.moveTo(x+r_px+20,canvas.height-10); ctx.lineTo(x+3*r_px+20,canvas.height-10); ctx.stroke();
+}
+
+function resetBoyle(){
+    ["P1","P2","H1","H2"].forEach(id=>document.getElementById(id).value="");
+    boyleResult.innerText=""; radiusDisplay.innerText="";
+    let ctx=document.getElementById("boyleCanvas").getContext("2d"); ctx.clearRect(0,0,400,300);
+    boylePrevHeights={v1:0,v2:0};
+}
+
+// ---------- Shock Tube Volume ----------
+let volumePrevHeight=0;
+function calculateVolume(){
+    let r=parseFloat(volRadius.value),h=parseFloat(volHeight.value);
+    let f=volInputUnit.value==="mm"?0.001:0.0254;
+    let V=Math.PI*(r*f)**2*(h*f);
+    let out=volOutputUnit.value==="mm3"?V*1e9:V*1000;
+    volumeResult.innerText=`Volume = ${out.toFixed(3)} ${volOutputUnit.value}`;
+    animateCylinder(document.getElementById("volumeCanvas"),volumePrevHeight,h*f,h => drawVolumeDiagram(r*f,h));
+    volumePrevHeight=h*f;
+}
+
+function drawVolumeDiagram(radius,h){
+    let canvas=document.getElementById("volumeCanvas"); let ctx=canvas.getContext("2d");
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    let scale=canvas.height*0.8/h, r_px=radius*39.37*10, x=canvas.width/2, yOffset=20;
+    let grad=ctx.createLinearGradient(0,yOffset,0,yOffset+h*scale); grad.addColorStop(0,"#FFD700"); grad.addColorStop(1,"#FFA500");
+    ctx.fillStyle=grad; ctx.fillRect(x-r_px,yOffset,2*r_px,h*scale);
+    ctx.strokeStyle="red"; ctx.beginPath(); ctx.moveTo(x,canvas.height-10); ctx.lineTo(x+r_px,canvas.height-10); ctx.stroke();
+}
+
+function resetVolume(){ volRadius.value=""; volHeight.value=""; volumeResult.innerText="";
+    let ctx=document.getElementById("volumeCanvas").getContext("2d"); ctx.clearRect(0,0,200,300); volumePrevHeight=0;
+}
+
+// ---------- Rod Force ----------
+function updateRodUnits(){
+    rodUnit.innerHTML="";
+    if(rodType.value==="force"){rodUnit.innerHTML="<option value='lbs'>lbs</option><option value='N'>Newtons</option>";}
+    else {rodUnit.innerHTML="<option value='psi'>psi</option><option value='bar'>bar</option>";}
+}
+function calculateRod(){
+    let v=parseFloat(rodValue.value),f=parseFloat(shaft.value);
+    if(isNaN(v)){rodResult.innerText="Enter a valid value";return;}
+    if(rodType.value==="force"){
+        if(rodUnit.value==="N") v*=0.224809;
+        let psi=v/f,bar=psi/14.5038;
+        rodResult.innerText=`Pressure = ${psi.toFixed(2)} psi (${bar.toFixed(2)} bar)`;
+    } else {
+        let psi=(rodUnit.value==="bar"?v*14.5038:v),lbs=psi*f,newtons=lbs/0.224809;
+        rodResult.innerText=`Force = ${lbs.toFixed(2)} lbs (${newtons.toFixed(2)} N)`;
+    }
+}
+function resetRod(){ rodValue.value=""; rodResult.innerText=""; }
+
+updateRodUnits();
+</script>
+
+</body>
+</html>
