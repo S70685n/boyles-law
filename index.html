@@ -180,7 +180,7 @@ button.reset:hover {
 </select>
 
 <label>Shock Tube Diameter</label>
-<select id="diameter">
+<select id="diameter" onchange="updateRadiusOnly()">
     <option value="2">2.0 inches</option>
     <option value="2.5">2.5 inches</option>
 </select>
@@ -381,6 +381,12 @@ function calculateRod(){
     }
 }
 function resetRod(){ rodValue.value=""; rodResult.innerText=""; }
+
+function updateRadiusOnly(){
+    let D_in = parseFloat(diameter.value);
+    let r_m = (D_in / 2) * 0.0254;
+    radiusDisplay.innerText = `Radius = ${(r_m/0.0254).toFixed(3)} inches`;
+}
 
 updateRodUnits();
 </script>
