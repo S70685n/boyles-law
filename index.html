@@ -178,12 +178,6 @@ button.reset:hover {
 <h2>Boyle's Law</h2>
 <p class="subtitle">Leave ONE field blank</p>
 
-<label>Pressure Unit</label>
-<select id="pressureUnit">
-    <option value="psi">psi</option>
-    <option value="bar">bar</option>
-</select>
-
 <label>Shock Tube Diameter</label>
 <select id="diameter" onchange="updateRadiusOnly()">
     <option value="2">2.0 inches</option>
@@ -214,6 +208,12 @@ button.reset:hover {
 
 <label>(P1) Initial Nitrogen Pressure</label>
 <input id="P1">
+
+    <label>Pressure Unit</label>
+<select id="pressureUnit">
+    <option value="psi">psi</option>
+    <option value="bar">bar</option>
+</select>
 
 <button class="calc" onclick="calculateBoyle()">Calculate</button>
 <button class="reset" onclick="resetBoyle()">Reset</button>
