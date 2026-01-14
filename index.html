@@ -188,7 +188,7 @@ button.reset:hover {
 <div id="radiusDisplay" style="margin-bottom:14px;font-weight:bold;"></div>
 
 <label>(V1) Starting Length (Select unit of measurement below)</label>
-<p class="sub">Monotube: Measure from the bottom of the IFP (in the gas fill position) to the Bottom of the shock tube.</p>  
+<p class="sub">Monotube: Measure from the bottom of the IFP (in the gas fill position) to the bottom of the shock tube.</p>  
 <p class="sub">Reservoir style shock: Measure from the bottom of the reservoir cap to the top of the reservoir IFP. Note: Shaft needs to be in the fully extended position before taking measurement.</p> 
 <input id="H1">
 <select id="H1Unit">
@@ -196,7 +196,9 @@ button.reset:hover {
     <option value="in">inches</option>
 </select>
 
-<label>(V2) Final Length of IFP to Bottom of shock tube or bottom of reservoir cap to reservoir IFP. (Select unit of measurement below)</label>
+<label>(V2) Final Length (Select unit of measurement below)</label>
+<p class="sub">Measurement from the bottom of the IFP to the bottom of shock tube or bottom of reservoir cap to reservoir IFP.</p> 
+<p class="sub">(Notes: Need to calculator oil displacement from shaft, due to the fully collasped build process, to help determine the final posstion of the IFP with the shaft in the fully extended position)</p>
 <input id="H2">
 <select id="H2Unit">
     <option value="mm">millimeters</option>
