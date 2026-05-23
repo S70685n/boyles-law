@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Engineering Calculators</title>
+<title>Boyles-Law</title>
 
 <style>
 /* ---------- GENERAL ---------- */
@@ -164,7 +164,6 @@ button.reset:hover {
 <!-- ---------- TABS ---------- -->
 <div class="tabs">
     <button class="tab-button active" onclick="openTab(event,'boyle')">Nitrogen Charge Pressure</button>
-    <button class="tab-button" onclick="openTab(event,'rod')">Rod Force</button>
     <button class="tab-button" onclick="openTab(event,'cylinder')">Shock Tube Volume</button>
 </div>
 
@@ -255,43 +254,7 @@ button.reset:hover {
 
 <div id="volumeResult" class="result"></div>
 </div>
-
-<!-- ================= ROD FORCE ================= -->
-<div id="rod" class="tab-content">
-<h2>Rod Force</h2>
-
-<label>Input Type</label>
-<select id="rodType" onchange="updateRodUnits()">
-    <option value="force">Rod Force to Nitrogen Pressure</option>
-    <option value="pressure">Nitrogen Pressure to Rod Force</option>
-</select>
-   
-<label>Value (Rod Force reading on Dyno or Nitrogen pressure specification)</label>
-<input id="rodValue">
-
-<label>Unit of measurement for "value" input</label>
-<select id="rodUnit"></select>
-
-<label>Shaft Size</label>
-<select id="shaft">
-    <option value="0.196">1/2 inch</option>
-    <option value="0.307" selected>5/8 inch</option>
-    <option value="0.601">7/8 inch</option>
-</select>
-
-<button class="calc" onclick="calculateRod()">Calculate</button>
-<button class="reset" onclick="resetRod()">Reset</button>
-
-<div id="rodResult" class="result"></div>
-</div>
-
-<script>
-// ---------- Tabs ----------
-function openTab(evt,id){
-    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-    document.querySelectorAll('.tab-button').forEach(b=>b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    evt.currentTarget.classList.add('active');
+    
 }
 
 // ---------- Helpers ----------
@@ -365,26 +328,6 @@ function calculateVolume(){
     volumeResult.innerText=`Volume = ${out.toFixed(3)} ${volOutputUnit.value}`;
 }
 function resetVolume(){ volRadius.value=""; volHeight.value=""; volumeResult.innerText=""; }
-
-// ---------- Rod Force ----------
-function updateRodUnits(){
-    rodUnit.innerHTML="";
-    if(rodType.value==="force"){rodUnit.innerHTML="<option value='lbs'>lbs</option><option value='N'>Newtons</option>";}
-    else {rodUnit.innerHTML="<option value='psi'>psi</option><option value='bar'>bar</option>";}
-}
-function calculateRod(){
-    let v=parseFloat(rodValue.value),f=parseFloat(shaft.value);
-    if(isNaN(v)){rodResult.innerText="Enter a valid value";return;}
-    if(rodType.value==="force"){
-        if(rodUnit.value==="N") v*=0.224809;
-        let psi=v/f,bar=psi/14.5038;
-        rodResult.innerText=`Pressure = ${psi.toFixed(2)} psi (${bar.toFixed(2)} bar)`;
-    } else {
-        let psi=(rodUnit.value==="bar"?v*14.5038:v),lbs=psi*f,newtons=lbs/0.224809;
-        rodResult.innerText=`Force = ${lbs.toFixed(2)} lbs (${newtons.toFixed(2)} N)`;
-    }
-}
-function resetRod(){ rodValue.value=""; rodResult.innerText=""; }
 
 function updateRadiusOnly(){
     let D_in = parseFloat(diameter.value);
