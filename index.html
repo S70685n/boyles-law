@@ -172,151 +172,170 @@ button.reset {
 </div>
 
 <script>
-// ---------- Tabs ----------
-function openTab(tab) {
-    document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
-    document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
-
-    document.getElementById(tab).classList.add("active");
-    event.target.classList.add("active");
-}
 
 // ---------- Helpers ----------
-function heightToMeters(v, u) {
-    v = parseFloat(v);
-    if (isNaN(v)) return 0;
-    return u === "in" ? v * 0.0254 : v / 1000;
+function heightToMeters(v,u){
+    return u==="in"?v*0.0254:v/1000;
 }
 
-function animateCylinder(canvas, prev, target, draw) {
-    let start = prev || 0;
-    let t0 = null;
+function animateCylinder(canvas,prevHeight,targetHeight,drawFunc){
+    let startHeight=prevHeight||0;
+    let startTime=null;
 
-    function step(t) {
-        if (!t0) t0 = t;
-        let p = Math.min((t - t0) / 500, 1);
-        let h = start + (target - start) * p;
-        draw(h);
-        if (p < 1) requestAnimationFrame(step);
+    function animate(time){
+        if(!startTime) startTime=time;
+        let progress=Math.min((time-startTime)/500,1);
+        let currentHeight=startHeight+(targetHeight-startHeight)*progress;
+        drawFunc(currentHeight);
+        if(progress<1) requestAnimationFrame(animate);
     }
 
-    requestAnimationFrame(step);
+    requestAnimationFrame(animate);
 }
 
-// ---------- Boyle ----------
-let prev = { v1: 0, v2: 0 };
+// ---------- Boyle's Law ----------
+let boylePrevHeights={v1:0,v2:0};
 
-function calculateBoyle() {
-    const P1 = parseFloat(document.getElementById("P1").value);
-    const P2 = parseFloat(document.getElementById("P2").value);
-    const H1 = parseFloat(document.getElementById("H1").value);
-    const H2 = parseFloat(document.getElementById("H2").value);
+function calculateBoyle(){
 
-    const H1U = document.getElementById("H1Unit").value;
-    const H2U = document.getElementById("H2Unit").value;
-    const unit = document.getElementById("pressureUnit").value;
+    let P1v=parseFloat(document.getElementById("P1").value);
+    let P2v=parseFloat(document.getElementById("P2").value);
+    let H1v=parseFloat(document.getElementById("H1").value);
+    let H2v=parseFloat(document.getElementById("H2").value);
 
-    const d = parseFloat(document.getElementById("diameter").value);
-    const r = (d / 2) * 0.0254;
+    let D_in=parseFloat(document.getElementById("diameter").value);
 
-    document.getElementById("radiusDisplay").innerText =
-        `Radius = ${(r / 0.0254).toFixed(3)} inches`;
+    let H1Unit=document.getElementById("H1Unit").value;
+    let H2Unit=document.getElementById("H2Unit").value;
+    let pressureUnit=document.getElementById("pressureUnit").value;
 
-    let h1m = heightToMeters(H1, H1U);
-    let h2m = heightToMeters(H2, H2U);
+    let radiusDisplay=document.getElementById("radiusDisplay");
+    let boyleResult=document.getElementById("boyleResult");
 
-    let V1 = Math.PI * r * r * h1m;
-    let V2 = Math.PI * r * r * h2m;
+    let r_m=(D_in/2)*0.0254;
 
-    let blanks = [P1, P2, H1, H2].filter(x => isNaN(x)).length;
+    radiusDisplay.innerText=`Radius = ${(r_m/0.0254).toFixed(3)} inches`;
 
-    if (blanks !== 1) {
-        document.getElementById("boyleResult").innerText =
-            "Leave exactly ONE field blank";
+    let h1m=heightToMeters(H1v,H1Unit);
+    let h2m=heightToMeters(H2v,H2Unit);
+
+    let V1=Math.PI*r_m*r_m*h1m;
+    let V2=Math.PI*r_m*r_m*h2m;
+
+    let blanks=[P1v,P2v,H1v,H2v].filter(v=>isNaN(v)).length;
+
+    if(blanks!==1){
+        boyleResult.innerText="Leave exactly ONE field blank";
         return;
     }
 
-    let result = "";
+    if(isNaN(P1v))
+        boyleResult.innerText=`P1 = ${(P2v*V2/V1).toFixed(2)} ${pressureUnit}`;
 
-    if (isNaN(P1)) result = `P1 = ${(P2 * V2 / V1).toFixed(2)} ${unit}`;
-    else if (isNaN(P2)) result = `P2 = ${(P1 * V1 / V2).toFixed(2)} ${unit}`;
-    else if (isNaN(H1)) result = "H1 solved (see full version)";
-    else result = "H2 solved (see full version)";
+    else if(isNaN(P2v))
+        boyleResult.innerText=`P2 = ${(P1v*V1/V2).toFixed(2)} ${pressureUnit}`;
 
-    document.getElementById("boyleResult").innerText = result;
+    else if(isNaN(H1v))
+        boyleResult.innerText=`H1 = ${((V2*P2v)/(Math.PI*r_m*r_m*P1v)/(H1Unit==="in"?0.0254:0.001)).toFixed(2)} ${H1Unit}`;
 
-    animateCylinder(
-        document.getElementById("boyleCanvas"),
-        prev.v1,
-        h1m,
-        h => draw(r, h, h2m)
-    );
+    else
+        boyleResult.innerText=`H2 = ${((V1*P1v)/(Math.PI*r_m*r_m*P2v)/(H2Unit==="in"?0.0254:0.001)).toFixed(2)} ${H2Unit}`;
 
-    animateCylinder(
-        document.getElementById("boyleCanvas"),
-        prev.v2,
-        h2m,
-        h => draw(r, h1m, h)
-    );
 
-    prev.v1 = h1m;
-    prev.v2 = h2m;
+    // Animate cylinders (UNCHANGED LOGIC)
+    let canvas=document.getElementById("boyleCanvas");
+
+    animateCylinder(canvas,boylePrevHeights.v1,h1m,h=>drawBoyleDiagram(r_m,h,h2m));
+    animateCylinder(canvas,boylePrevHeights.v2,h2m,h=>drawBoyleDiagram(r_m,h1m,h));
+
+    boylePrevHeights.v1=h1m;
+    boylePrevHeights.v2=h2m;
 }
 
-function draw(r, h1, h2) {
-    const c = document.getElementById("boyleCanvas");
-    const ctx = c.getContext("2d");
+// ---------- DRAW (UNCHANGED VISUAL IDEA) ----------
+function drawBoyleDiagram(radius,h1,h2){
 
-    ctx.clearRect(0, 0, c.width, c.height);
+    let canvas=document.getElementById("boyleCanvas");
+    let ctx=canvas.getContext("2d");
 
-    let scale = 200 / Math.max(h1, h2, 0.001);
-    let x = 200;
-    let rpx = r * 400;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    ctx.fillStyle = "blue";
-    ctx.fillRect(x - rpx, 250 - h1 * scale, rpx * 2, h1 * scale);
+    let maxHeight=Math.max(h1,h2);
+    if(maxHeight===0) return;
 
-    ctx.fillStyle = "green";
-    ctx.fillRect(x + 40 - rpx, 250 - h2 * scale, rpx * 2, h2 * scale);
+    let scale=canvas.height*0.8/maxHeight;
+
+    let r_px=radius*39.37*10;
+    let x=canvas.width/2;
+    let yOffset=20;
+
+    // V1
+    let grad1=ctx.createLinearGradient(0,yOffset,0,yOffset+h1*scale);
+    grad1.addColorStop(0,"#87CEFA");
+    grad1.addColorStop(1,"#1E90FF");
+
+    ctx.fillStyle=grad1;
+    ctx.fillRect(x-r_px,yOffset,2*r_px,h1*scale);
+
+    // V2
+    let grad2=ctx.createLinearGradient(0,yOffset,0,yOffset+h2*scale);
+    grad2.addColorStop(0,"#98FB98");
+    grad2.addColorStop(1,"#228B22");
+
+    ctx.fillStyle=grad2;
+    ctx.fillRect(x+r_px+20,yOffset,2*r_px,h2*scale);
 }
 
-function resetBoyle() {
-    ["P1","P2","H1","H2"].forEach(id =>
-        document.getElementById(id).value = ""
-    );
+function resetBoyle(){
 
-    document.getElementById("boyleResult").innerText = "";
-    document.getElementById("radiusDisplay").innerText = "";
-    prev = { v1: 0, v2: 0 };
+    ["P1","P2","H1","H2"].forEach(id=>{
+        document.getElementById(id).value="";
+    });
 
-    const ctx = document.getElementById("boyleCanvas").getContext("2d");
-    ctx.clearRect(0, 0, 400, 300);
+    document.getElementById("boyleResult").innerText="";
+    document.getElementById("radiusDisplay").innerText="";
+
+    let ctx=document.getElementById("boyleCanvas").getContext("2d");
+    ctx.clearRect(0,0,400,300);
+
+    boylePrevHeights={v1:0,v2:0};
 }
 
-// ---------- Volume ----------
-function calculateVolume() {
-    const r = parseFloat(document.getElementById("volRadius").value);
-    const h = parseFloat(document.getElementById("volHeight").value);
+// ---------- SHOCK TUBE VOLUME (UNCHANGED MATH) ----------
+function calculateVolume(){
 
-    const iu = document.getElementById("volInputUnit").value;
-    const ou = document.getElementById("volOutputUnit").value;
+    let r=parseFloat(document.getElementById("volRadius").value);
+    let h=parseFloat(document.getElementById("volHeight").value);
 
-    let f = iu === "mm" ? 0.001 : 0.0254;
+    let f=document.getElementById("volInputUnit").value==="mm"?0.001:0.0254;
 
-    let V = Math.PI * (r*f)**2 * (h*f);
+    let V=Math.PI*(r*f)**2*(h*f);
 
-    let out = ou === "mm3" ? V * 1e9 : V * 1000;
+    let out=document.getElementById("volOutputUnit").value==="mm3"
+        ?V*1e9
+        :V*1000;
 
-    document.getElementById("volumeResult").innerText =
-        `Volume = ${out.toFixed(3)} ${ou}`;
+    document.getElementById("volumeResult").innerText=
+        `Volume = ${out.toFixed(3)} ${document.getElementById("volOutputUnit").value}`;
 }
 
-function resetVolume() {
-    document.getElementById("volRadius").value = "";
-    document.getElementById("volHeight").value = "";
-    document.getElementById("volumeResult").innerText = "";
+function resetVolume(){
+    document.getElementById("volRadius").value="";
+    document.getElementById("volHeight").value="";
+    document.getElementById("volumeResult").innerText="";
 }
+
+// ---------- Radius ONLY helper (UNCHANGED LOGIC) ----------
+function updateRadiusOnly(){
+
+    let D_in=parseFloat(document.getElementById("diameter").value);
+    let r_m=(D_in/2)*0.0254;
+
+    document.getElementById("radiusDisplay").innerText=
+        `Radius = ${(r_m/0.0254).toFixed(3)} inches`;
+}
+
 </script>
-
+    
 </body>
 </html>
